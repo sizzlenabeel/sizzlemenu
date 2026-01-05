@@ -1,0 +1,101 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Dish, DayOfWeek } from '@/types/menu';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+interface ProductRow {
+  id: string;
+  name: string | null;
+  translated_name: string | null;
+  description: string | null;
+  translated_description: string | null;
+  ingredients: string | null;
+  translated_ingredients: string[] | null;
+  allergens: string | null;
+  translated_allergens: string | null;
+  consumption_guidelines: string | null;
+  translated_consumption_guidelines: string | null;
+  price: number | null;
+  due_date: string | null;
+  is_vegan: boolean | null;
+  is_snack: boolean | null;
+  is_for_storytel: boolean | null;
+  is_only_for_storytel: boolean | null;
+  delivery_day: string | null;
+}
+
+function parseIngredients(ingredients: string | null, translatedIngredients: unknown): string[] {
+  // translated_ingredients is stored as JSONB array
+  if (Array.isArray(translatedIngredients) && translatedIngredients.length > 0) {
+    return translatedIngredients.map(String);
+  }
+  if (ingredients) {
+    return ingredients.split(',').map(i => i.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function parseDayOfWeek(day: string | null): DayOfWeek | undefined {
+  if (!day) return undefined;
+  const normalized = day.toLowerCase().trim();
+  const validDays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  return validDays.includes(normalized as DayOfWeek) ? (normalized as DayOfWeek) : undefined;
+}
+
+export function useProducts() {
+  const { language } = useLanguage();
+
+  return useQuery({
+    queryKey: ['products', language],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          id,
+          name,
+          translated_name,
+          description,
+          translated_description,
+          ingredients,
+          translated_ingredients,
+          allergens,
+          translated_allergens,
+          consumption_guidelines,
+          translated_consumption_guidelines,
+          price,
+          due_date,
+          is_vegan,
+          is_snack,
+          is_for_storytel,
+          is_only_for_storytel,
+          delivery_day
+        `);
+
+      if (error) throw error;
+
+      const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = (data || []).map((row: ProductRow) => {
+        const isEnglish = language === 'en';
+
+        return {
+          id: row.id,
+          name: (isEnglish ? row.translated_name : row.name) || row.name || 'Unknown',
+          description: (isEnglish ? row.translated_description : row.description) || row.description || '',
+          ingredients: isEnglish 
+            ? parseIngredients(row.ingredients, row.translated_ingredients)
+            : parseIngredients(row.ingredients, null),
+          allergens: (isEnglish ? row.translated_allergens : row.allergens) || row.allergens || '',
+          consumptionGuidelines: (isEnglish ? row.translated_consumption_guidelines : row.consumption_guidelines) || row.consumption_guidelines || '',
+          price: row.price || 0,
+          dueDate: row.due_date ? new Date(row.due_date) : new Date(),
+          category: row.is_snack ? 'snacks' : 'food',
+          isVegan: row.is_vegan || false,
+          day: parseDayOfWeek(row.delivery_day),
+          isForStorytel: row.is_for_storytel || false,
+          isOnlyForStorytel: row.is_only_for_storytel || false,
+        };
+      });
+
+      return dishes;
+    },
+  });
+}

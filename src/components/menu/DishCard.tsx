@@ -55,18 +55,39 @@ export function DishCard({ dish }: DishCardProps) {
             <p className="text-sm text-muted-foreground mb-4 mt-4">
               {dish.description}
             </p>
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                Ingredients
-              </h4>
-              <div className="flex flex-wrap gap-1.5">
-                {dish.ingredients.map((ingredient, index) => (
-                  <Badge key={index} variant="outline" className="text-xs font-normal">
-                    {ingredient}
-                  </Badge>
-                ))}
+            
+            {dish.ingredients.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  Ingredients
+                </h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {dish.ingredients.map((ingredient, index) => (
+                    <Badge key={index} variant="outline" className="text-xs font-normal">
+                      {ingredient}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {dish.allergens && (
+              <div className="mb-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  Allergens
+                </h4>
+                <p className="text-sm text-muted-foreground">{dish.allergens}</p>
+              </div>
+            )}
+
+            {dish.consumptionGuidelines && (
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  Serving Instructions
+                </h4>
+                <p className="text-sm text-muted-foreground">{dish.consumptionGuidelines}</p>
+              </div>
+            )}
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
