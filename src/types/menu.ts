@@ -4,16 +4,20 @@ export type Category = 'food' | 'snacks';
 
 export type SortOption = 'price' | 'dueDate';
 
+export type Language = 'sv' | 'en';
+
 export interface Dish {
   id: string;
   name: string;
   description: string;
   ingredients: string[];
+  allergens: string;
+  consumptionGuidelines: string;
   price: number;
   dueDate: Date;
   category: Category;
   isVegan: boolean;
-  day?: DayOfWeek; // Only used for Storytel (daily rotating menu)
+  day?: DayOfWeek;
 }
 
 export interface MenuFilters {
