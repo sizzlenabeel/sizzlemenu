@@ -3,16 +3,24 @@ import { Dish } from "@/types/menu";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Leaf, Calendar, DollarSign } from "lucide-react";
+import { ChevronDown, Leaf, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { sv } from "date-fns/locale";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DishCardProps {
   dish: Dish;
+  showPrice?: boolean;
 }
 
-export function DishCard({ dish }: DishCardProps) {
+export function DishCard({ dish, showPrice = true }: DishCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { language } = useLanguage();
+  const isSwedish = language === 'sv';
+
+  const bestBeforeLabel = isSwedish ? 'Bäst före' : 'Best before';
+  const formattedDate = format(dish.dueDate, 'd MMM', { locale: isSwedish ? sv : undefined });
 
   return (
     <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg animate-fade-in">
@@ -31,13 +39,14 @@ export function DishCard({ dish }: DishCardProps) {
                   )}
                 </div>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1 font-semibold text-foreground">
-                    <DollarSign className="h-4 w-4" />
-                    {dish.price.toFixed(2)}
-                  </span>
+                  {showPrice && (
+                    <span className="font-semibold text-foreground">
+                      {dish.price} kr
+                    </span>
+                  )}
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    {format(dish.dueDate, 'MMM d')}
+                    {bestBeforeLabel}: {formattedDate}
                   </span>
                 </div>
               </div>

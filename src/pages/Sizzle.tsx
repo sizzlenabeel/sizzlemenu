@@ -4,10 +4,12 @@ import { MenuHeader } from "@/components/menu/MenuHeader";
 import { FilterBar } from "@/components/menu/FilterBar";
 import { DishCard } from "@/components/menu/DishCard";
 import { EmptyState } from "@/components/menu/EmptyState";
+import { WeekSelector, getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Sizzle() {
+  const [selectedWeek, setSelectedWeek] = useState(getCurrentWeek);
   const [filters, setFilters] = useState<MenuFilters>({
     category: 'food',
     veganOnly: false,
@@ -24,6 +26,8 @@ export default function Sizzle() {
       if (dish.isOnlyForStorytel) return false;
       if (dish.category !== filters.category) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
+      // Filter by selected week
+      if (dish.weekNumber !== selectedWeek.week || dish.weekYear !== selectedWeek.year) return false;
       return true;
     });
 
@@ -35,7 +39,7 @@ export default function Sizzle() {
     });
 
     return result;
-  }, [allDishes, filters]);
+  }, [allDishes, selectedWeek, filters]);
 
   if (error) {
     return (
@@ -57,6 +61,10 @@ export default function Sizzle() {
           locationName="Sizzle" 
           subtitle="Weekly menu" 
         />
+        
+        <div className="flex items-center justify-end mb-4">
+          <WeekSelector selectedWeek={selectedWeek} onChange={setSelectedWeek} />
+        </div>
         
         <FilterBar filters={filters} onFiltersChange={setFilters} />
 
