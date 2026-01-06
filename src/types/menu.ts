@@ -18,10 +18,13 @@ export interface Dish {
   category: Category;
   isVegan: boolean;
   day?: DayOfWeek;
+  weekNumber?: number;
+  weekYear?: number;
 }
 
 export interface MenuFilters {
   category: Category;
   veganOnly: boolean;
   sortBy: SortOption;
+  selectedWeek?: { week: number; year: number };
 }

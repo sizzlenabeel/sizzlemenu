@@ -5,11 +5,13 @@ import { DayTabs } from "@/components/menu/DayTabs";
 import { FilterBar } from "@/components/menu/FilterBar";
 import { DishCard } from "@/components/menu/DishCard";
 import { EmptyState } from "@/components/menu/EmptyState";
+import { WeekSelector, getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Storytel() {
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('monday');
+  const [selectedWeek, setSelectedWeek] = useState(getCurrentWeek);
   const [filters, setFilters] = useState<MenuFilters>({
     category: 'food',
     veganOnly: false,
@@ -27,6 +29,8 @@ export default function Storytel() {
       if (dish.day !== selectedDay) return false;
       if (dish.category !== filters.category) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
+      // Filter by selected week
+      if (dish.weekNumber !== selectedWeek.week || dish.weekYear !== selectedWeek.year) return false;
       return true;
     });
 
@@ -38,7 +42,7 @@ export default function Storytel() {
     });
 
     return result;
-  }, [allDishes, selectedDay, filters]);
+  }, [allDishes, selectedDay, selectedWeek, filters]);
 
   if (error) {
     return (
@@ -61,7 +65,10 @@ export default function Storytel() {
           subtitle="Daily rotating menu" 
         />
         
-        <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
+          <WeekSelector selectedWeek={selectedWeek} onChange={setSelectedWeek} />
+        </div>
         
         <div className="mt-6">
           <FilterBar filters={filters} onFiltersChange={setFilters} />
@@ -74,7 +81,7 @@ export default function Storytel() {
             ))
           ) : filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
-              <DishCard key={dish.id} dish={dish} />
+              <DishCard key={dish.id} dish={dish} showPrice={false} />
             ))
           ) : (
             <EmptyState message={`No ${filters.category} available for ${selectedDay}`} />
