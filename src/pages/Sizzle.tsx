@@ -9,7 +9,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Sizzle() {
-  const [selectedWeek, setSelectedWeek] = useState(getCurrentWeek);
+  const [selectedWeek, setSelectedWeek] = useState<number>(getCurrentWeek);
   const [filters, setFilters] = useState<MenuFilters>({
     category: 'food',
     veganOnly: false,
@@ -27,7 +27,7 @@ export default function Sizzle() {
       if (dish.category !== filters.category) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
       // Filter by selected week
-      if (dish.weekNumber !== selectedWeek.week || dish.weekYear !== selectedWeek.year) return false;
+      if (dish.weekNumber !== selectedWeek) return false;
       return true;
     });
 

@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dish, DayOfWeek } from '@/types/menu';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getISOWeek, getISOWeekYear } from 'date-fns';
 
 interface ProductRow {
   id: string;
@@ -23,6 +22,7 @@ interface ProductRow {
   is_for_storytel: boolean | null;
   is_only_for_storytel: boolean | null;
   delivery_day: string | null;
+  week_number: number | null;
 }
 
 function parseIngredients(ingredients: string | null, translatedIngredients: unknown): string[] {
@@ -69,7 +69,8 @@ export function useProducts() {
           is_snack,
           is_for_storytel,
           is_only_for_storytel,
-          delivery_day
+          delivery_day,
+          week_number
         `);
 
       if (error) throw error;
@@ -93,8 +94,7 @@ export function useProducts() {
           day: parseDayOfWeek(row.delivery_day),
           isForStorytel: row.is_for_storytel || false,
           isOnlyForStorytel: row.is_only_for_storytel || false,
-          weekNumber: row.due_date ? getISOWeek(new Date(row.due_date)) : undefined,
-          weekYear: row.due_date ? getISOWeekYear(new Date(row.due_date)) : undefined,
+          weekNumber: row.week_number ?? undefined,
         };
       });
 
