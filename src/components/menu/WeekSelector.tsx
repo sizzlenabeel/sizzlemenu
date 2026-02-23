@@ -1,4 +1,4 @@
-import { getISOWeek, getISOWeekYear, subWeeks } from "date-fns";
+import { getISOWeek } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -10,35 +10,30 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface WeekOption {
   week: number;
-  year: number;
   label: string;
   isCurrent: boolean;
 }
 
 interface WeekSelectorProps {
-  selectedWeek: { week: number; year: number };
-  onChange: (week: { week: number; year: number }) => void;
+  selectedWeek: number;
+  onChange: (week: number) => void;
 }
 
 function generateWeekOptions(language: 'sv' | 'en'): WeekOption[] {
-  const now = new Date();
-  const currentWeek = getISOWeek(now);
-  const currentYear = getISOWeekYear(now);
+  const currentWeek = getCurrentWeek();
   const weekLabel = language === 'sv' ? 'Vecka' : 'Week';
   const currentLabel = language === 'sv' ? '(nuvarande)' : '(current)';
 
   const options: WeekOption[] = [];
 
   for (let i = 0; i < 5; i++) {
-    const date = subWeeks(now, i);
-    const week = getISOWeek(date);
-    const year = getISOWeekYear(date);
+    let week = currentWeek - i;
+    if (week <= 0) week += 52;
     const isCurrent = i === 0;
 
     options.push({
       week,
-      year,
-      label: `${weekLabel} ${week}${year !== currentYear ? ` (${year})` : ''}${isCurrent ? ` ${currentLabel}` : ''}`,
+      label: `${weekLabel} ${week}${isCurrent ? ` ${currentLabel}` : ''}`,
       isCurrent,
     });
   }
@@ -46,27 +41,18 @@ function generateWeekOptions(language: 'sv' | 'en'): WeekOption[] {
   return options;
 }
 
-export function getCurrentWeek(): { week: number; year: number } {
-  const now = new Date();
-  return {
-    week: getISOWeek(now),
-    year: getISOWeekYear(now),
-  };
+export function getCurrentWeek(): number {
+  return getISOWeek(new Date());
 }
 
 export function WeekSelector({ selectedWeek, onChange }: WeekSelectorProps) {
   const { language } = useLanguage();
   const options = generateWeekOptions(language);
 
-  const handleChange = (value: string) => {
-    const [week, year] = value.split('-').map(Number);
-    onChange({ week, year });
-  };
-
   return (
     <Select
-      value={`${selectedWeek.week}-${selectedWeek.year}`}
-      onValueChange={handleChange}
+      value={String(selectedWeek)}
+      onValueChange={(value) => onChange(Number(value))}
     >
       <SelectTrigger className="w-[180px]">
         <SelectValue />
@@ -74,8 +60,8 @@ export function WeekSelector({ selectedWeek, onChange }: WeekSelectorProps) {
       <SelectContent>
         {options.map((option) => (
           <SelectItem
-            key={`${option.week}-${option.year}`}
-            value={`${option.week}-${option.year}`}
+            key={option.week}
+            value={String(option.week)}
           >
             {option.label}
           </SelectItem>

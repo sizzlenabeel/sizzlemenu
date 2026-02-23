@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Storytel() {
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('monday');
-  const [selectedWeek, setSelectedWeek] = useState(getCurrentWeek);
+  const [selectedWeek, setSelectedWeek] = useState<number>(getCurrentWeek);
   const [filters, setFilters] = useState<MenuFilters>({
     category: 'food',
     veganOnly: false,
@@ -23,14 +23,18 @@ export default function Storytel() {
   const filteredDishes = useMemo(() => {
     if (!allDishes) return [];
 
+    const now = new Date();
+
     // Storytel shows dishes that are for Storytel
     let result = allDishes.filter((dish) => {
       if (!dish.isForStorytel && !dish.isOnlyForStorytel) return false;
-      if (dish.day !== selectedDay) return false;
       if (dish.category !== filters.category) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
-      // Filter by selected week
-      if (dish.weekNumber !== selectedWeek.week || dish.weekYear !== selectedWeek.year) return false;
+      if (dish.weekNumber !== selectedWeek) return false;
+      // Hide expired items
+      if (dish.dueDate < now) return false;
+      // Snacks show all week, food filters by day
+      if (dish.category === 'food' && dish.day !== selectedDay) return false;
       return true;
     });
 
