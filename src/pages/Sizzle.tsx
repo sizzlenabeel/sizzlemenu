@@ -13,7 +13,7 @@ export default function Sizzle() {
   const [filters, setFilters] = useState<MenuFilters>({
     category: 'food',
     veganOnly: false,
-    sortBy: 'price',
+    sortBy: 'dueDate',
   });
 
   const { data: allDishes, isLoading, error } = useProducts();

@@ -15,7 +15,7 @@ export default function Storytel() {
   const [filters, setFilters] = useState<MenuFilters>({
     category: 'food',
     veganOnly: false,
-    sortBy: 'price',
+    sortBy: 'dueDate',
   });
 
   const { data: allDishes, isLoading, error } = useProducts();
@@ -85,10 +85,10 @@ export default function Storytel() {
             ))
           ) : filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
-              <DishCard key={dish.id} dish={dish} showPrice={false} />
+              <DishCard key={dish.id} dish={dish} showPrice={dish.category === 'snacks'} />
             ))
           ) : (
-            <EmptyState message={`No ${filters.category} available for ${selectedDay}`} />
+            <EmptyState message={filters.category === 'snacks' ? 'No snacks available' : `No ${filters.category} available for ${selectedDay}`} />
           )}
         </div>
       </div>

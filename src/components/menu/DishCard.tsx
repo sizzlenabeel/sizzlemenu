@@ -38,7 +38,7 @@ export function DishCard({ dish, showPrice = true }: DishCardProps) {
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   {showPrice && (
                     <span className="font-semibold text-foreground">
                       {dish.price} kr
@@ -48,6 +48,11 @@ export function DishCard({ dish, showPrice = true }: DishCardProps) {
                     <Calendar className="h-4 w-4" />
                     {bestBeforeLabel}: {formattedDate}
                   </span>
+                  {dish.allergens && (
+                    <span className="text-xs text-muted-foreground italic">
+                      ⚠ {dish.allergens}
+                    </span>
+                  )}
                 </div>
               </div>
               <ChevronDown
