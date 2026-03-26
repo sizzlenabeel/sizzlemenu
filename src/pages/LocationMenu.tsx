@@ -60,11 +60,7 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
       <div className="container max-w-4xl py-8 px-4">
         <MenuHeader locationName={locationName} subtitle="Weekly menu" />
         
-        <div className="flex items-center justify-end mb-4">
-          <WeekSelector selectedWeek={selectedWeek} onChange={setSelectedWeek} />
-        </div>
-        
-        <FilterBar filters={filters} onFiltersChange={setFilters} />
+        <FilterBar filters={filters} onFiltersChange={setFilters} selectedWeek={selectedWeek} onWeekChange={setSelectedWeek} />
 
         <div className="space-y-4">
           {isLoading ? (

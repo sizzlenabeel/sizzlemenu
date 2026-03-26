@@ -70,16 +70,11 @@ export default function Storytel() {
           subtitle="Daily rotating menu" 
         />
         
-        <div className="space-y-3 mb-4">
+        <div className="mb-4">
           <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
-          <div className="flex justify-end">
-            <WeekSelector selectedWeek={selectedWeek} onChange={setSelectedWeek} />
-          </div>
         </div>
         
-        <div className="mt-6">
-          <FilterBar filters={filters} onFiltersChange={setFilters} />
-        </div>
+        <FilterBar filters={filters} onFiltersChange={setFilters} selectedWeek={selectedWeek} onWeekChange={setSelectedWeek} />
 
         <div className="space-y-4">
           {isLoading ? (
