@@ -1,43 +1,56 @@
-## Changes Across 4 Areas
+## Add "Buy Now" / "Köp nu" Swish Button to Dish Cards
 
-### 1. Fix Storytel Empty State Message for Snacks
+### Rules for Showing the Button
 
-**Problem**: The `EmptyState` in Storytel always says "No snacks available for monday" -- but snacks are not day-specific. The vegan filter on snacks also triggers this misleading message.
 
-**Fix in `src/pages/Storytel.tsx**`:
+| Page                           | Food            | Snacks          |
+| ------------------------------ | --------------- | --------------- |
+| `/storytel`                    | **No button**   | **Show button** |
+| `/sizzle` (and any other page) | **Show button** | **Show button** |
 
-- Change the empty state message to omit the day when category is snacks:
-  - Food: `"No food available for monday"`
-  - Snacks: `"No snacks available"`
 
-### 2. Show Price Only for Snacks on Storytel
+### Swish URL Construction
 
-**Problem**: Storytel currently passes `showPrice={false}` for all dishes. Snacks should show price.
+Base: `https://app.swish.nu/1/p/sw/?sw=1234355145&amt={price}&cur=SEK&msg={msg}&edit=amt,msg&src=qr`
 
-**Fix in `src/pages/Storytel.tsx**`:
+- `amt` = dish price as a number
+- `msg` = `{locationName}_{dishName}` with spaces removed, truncated to 50 characters
 
-- Change `showPrice` to be dynamic: `showPrice={dish.category === 'snacks'}`
+Example: location "Sizzle", dish "Grillad Kyckling" → `msg=Sizzle_GrilladKyckling`
 
-### 3. Default Sort by Due Date on All Pages
+### Changes
 
-**Problem**: Both Storytel and Sizzle default `sortBy: 'price'`.
+`**src/components/menu/DishCard.tsx**`
 
-**Fix**:
+Add two new props:
 
-- `src/pages/Storytel.tsx` line 18: change `sortBy: 'price'` to `sortBy: 'dueDate'`
-- `src/pages/Sizzle.tsx` line 16: change `sortBy: 'price'` to `sortBy: 'dueDate'`
+- `showBuyButton?: boolean` (default `false`)
+- `locationName?: string`
 
-### 4. Show Allergens on the Collapsed Card
+When `showBuyButton` is true and `locationName` is provided:
 
-**Problem**: Allergens only appear in the expanded collapsible content. They should be visible in the short/collapsed card header alongside the due date.
+- Build the Swish URL using dish price and a sanitized `{location}_{dishName}` string (no spaces, max 50 chars)
+- Render a "Köp nu" / "Buy now" button (language-aware) in the card header row, next to the chevron
+- Button opens the URL in a new tab (`window.open` / `<a target="_blank">`)
+- The use case is in the phone and the url opens an app swish in the phone.
+- Button click must stop propagation so it doesn't toggle the collapsible
 
-**Fix in `src/components/menu/DishCard.tsx**`:
+`**src/pages/Storytel.tsx**`
 
-- Add allergen info to the header row (next to the due date), shown as a small text or badge when `dish.allergens` is non-empty
-- Keep the allergens section in the expanded view as well
+Pass to DishCard:
+
+- `showBuyButton={dish.category === 'snacks'}` — only snacks get the button
+- `locationName="Storytel"`
+
+`**src/pages/Sizzle.tsx**`
+
+Pass to DishCard:
+
+- `showBuyButton={true}` — all items get the button
+- `locationName="Sizzle"`
 
 ### Files to Modify
 
-- `src/components/menu/DishCard.tsx` -- add allergens to collapsed header
-- `src/pages/Storytel.tsx` -- fix empty state message for snacks, dynamic showPrice, default sort by dueDate, add view toggle
-- `src/pages/Sizzle.tsx` -- default sort by dueDate, add view toggle
+- `src/components/menu/DishCard.tsx` — add buy button with Swish URL logic
+- `src/pages/Storytel.tsx` — pass `showBuyButton` and `locationName`
+- `src/pages/Sizzle.tsx` — pass `showBuyButton` and `locationName`
