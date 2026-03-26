@@ -25,6 +25,11 @@ const App = () => (
           <Routes>
             <Route path="/storytel" element={<Storytel />} />
             <Route path="/sizzle" element={<Sizzle />} />
+            <Route path="/embark" element={<Embark />} />
+            <Route path="/tobii" element={<Tobii />} />
+            <Route path="/ahouse" element={<Ahouse />} />
+            <Route path="/king" element={<King />} />
+            <Route path="/nordnet" element={<Nordnet />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
