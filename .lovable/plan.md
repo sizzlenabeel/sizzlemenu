@@ -1,46 +1,42 @@
-## Plan: Fix Buy URL, Snack Filtering, Contact Buttons, and Mobile Layout
 
-### 1. Change underscore to hyphen in Swish URL
 
-**File**: `src/components/menu/DishCard.tsx` (line 30)
+## Add 5 New Location Pages
 
-Change `${locationName}_${dish.name}` to `${locationName}-${dish.name}` so the `msg` parameter uses a hyphen separator instead of underscore.
+Each page is identical to `/sizzle` but with a different URL slug and location name passed to `DishCard` for the Swish URL.
 
-### 3. Add Contact Us buttons
+### Approach
 
-**New file**: `src/components/menu/ContactButtons.tsx`
+Rather than duplicating `Sizzle.tsx` five times, create a single reusable component and use it across all location pages.
 
-A row of icon buttons (Messenger, Email, Phone) grouped under a "Contact Us" label. Uses lucide-react icons (`MessageCircle`, `Mail`, `Phone`). Each opens the appropriate link:
+### Changes
 
-- Messenger: `https://m.me/YOUR_PAGE` (placeholder, needs real link)
-- Email: `mailto:hello@sizzle.se` (placeholder)
-- Phone: `tel:+46XXXXXXXXX` (placeholder)
+**Create `src/pages/LocationMenu.tsx`**
+- Extract the Sizzle page logic into a component that accepts a `locationName` prop
+- Everything else stays identical (filters, week selector, dish cards, contact buttons)
 
-**Files**: `src/pages/Storytel.tsx`, `src/pages/Sizzle.tsx` -- add `<ContactButtons />` at the bottom of each page.
+**Create 5 thin page files** (each just renders `<LocationMenu locationName="X" />`):
+- `src/pages/Embark.tsx` → locationName="Embark"
+- `src/pages/Tobii.tsx` → locationName="Tobii"
+- `src/pages/Ahouse.tsx` → locationName="Ahouse"
+- `src/pages/King.tsx` → locationName="King"
+- `src/pages/Nordnet.tsx` → locationName="Nordnet"
 
-### 4. Tighten mobile layout on Storytel
+**Refactor `src/pages/Sizzle.tsx`** to also use `<LocationMenu locationName="Sizzle" />`
 
-`**src/components/menu/DayTabs.tsx**`:
+**Update `src/App.tsx`** — add 5 new routes:
+- `/embark` → Embark
+- `/tobii` → Tobii
+- `/ahouse` → Ahouse
+- `/king` → King
+- `/nordnet` → Nordnet
 
-- Remove `overflow-x-auto` and `min-w-[60px]`
-- Make buttons equal-width with smaller padding on mobile (`px-2 py-2 sm:px-4 sm:py-3`)
-- Always show the short label on mobile, full label on sm+
+### Files
+- `src/pages/LocationMenu.tsx` — new shared component (extracted from Sizzle)
+- `src/pages/Sizzle.tsx` — simplified to use LocationMenu
+- `src/pages/Embark.tsx` — new
+- `src/pages/Tobii.tsx` — new
+- `src/pages/Ahouse.tsx` — new
+- `src/pages/King.tsx` — new
+- `src/pages/Nordnet.tsx` — new
+- `src/App.tsx` — add 5 routes
 
-`**src/pages/Storytel.tsx**`:
-
-- Move `DayTabs` and `WeekSelector` to separate rows instead of side-by-side:
-  - Row 1: `DayTabs` (full width)
-  - Row 2: `WeekSelector` (aligned right or left)
-
-`**src/components/menu/FilterBar.tsx**`:
-
-- Put `VeganToggle` and `SortDropdown` on the same row on mobile (they already are in a flex-wrap container, but ensure `CategoryToggle` is on its own row and the vegan+sort pair stays together)
-
-### Files to modify
-
-- `src/components/menu/DishCard.tsx` -- hyphen in URL
-- `src/pages/Storytel.tsx` --  layout changes, add contact buttons
-- `src/pages/Sizzle.tsx` -- add contact buttons
-- `src/components/menu/DayTabs.tsx` -- compact mobile layout
-- `src/components/menu/FilterBar.tsx` -- tighten mobile layout
-- `src/components/menu/ContactButtons.tsx` -- new component
