@@ -5,7 +5,7 @@ import { DayTabs } from "@/components/menu/DayTabs";
 import { FilterBar } from "@/components/menu/FilterBar";
 import { DishCard } from "@/components/menu/DishCard";
 import { EmptyState } from "@/components/menu/EmptyState";
-import { WeekSelector, getCurrentWeek } from "@/components/menu/WeekSelector";
+import { getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContactButtons } from "@/components/menu/ContactButtons";
@@ -70,16 +70,11 @@ export default function Storytel() {
           subtitle="Daily rotating menu" 
         />
         
-        <div className="space-y-3 mb-4">
+        <div className="mb-4">
           <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
-          <div className="flex justify-end">
-            <WeekSelector selectedWeek={selectedWeek} onChange={setSelectedWeek} />
-          </div>
         </div>
         
-        <div className="mt-6">
-          <FilterBar filters={filters} onFiltersChange={setFilters} />
-        </div>
+        <FilterBar filters={filters} onFiltersChange={setFilters} selectedWeek={selectedWeek} onWeekChange={setSelectedWeek} />
 
         <div className="space-y-4">
           {isLoading ? (
