@@ -4,7 +4,7 @@ import { MenuHeader } from "@/components/menu/MenuHeader";
 import { FilterBar } from "@/components/menu/FilterBar";
 import { DishCard } from "@/components/menu/DishCard";
 import { EmptyState } from "@/components/menu/EmptyState";
-import { WeekSelector, getCurrentWeek } from "@/components/menu/WeekSelector";
+import { getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContactButtons } from "@/components/menu/ContactButtons";
