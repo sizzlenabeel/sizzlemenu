@@ -1,56 +1,46 @@
-## Add "Buy Now" / "Köp nu" Swish Button to Dish Cards
+## Plan: Fix Buy URL, Snack Filtering, Contact Buttons, and Mobile Layout
 
-### Rules for Showing the Button
+### 1. Change underscore to hyphen in Swish URL
 
+**File**: `src/components/menu/DishCard.tsx` (line 30)
 
-| Page                           | Food            | Snacks          |
-| ------------------------------ | --------------- | --------------- |
-| `/storytel`                    | **No button**   | **Show button** |
-| `/sizzle` (and any other page) | **Show button** | **Show button** |
+Change `${locationName}_${dish.name}` to `${locationName}-${dish.name}` so the `msg` parameter uses a hyphen separator instead of underscore.
 
+### 3. Add Contact Us buttons
 
-### Swish URL Construction
+**New file**: `src/components/menu/ContactButtons.tsx`
 
-Base: `https://app.swish.nu/1/p/sw/?sw=1234355145&amt={price}&cur=SEK&msg={msg}&edit=amt,msg&src=qr`
+A row of icon buttons (Messenger, Email, Phone) grouped under a "Contact Us" label. Uses lucide-react icons (`MessageCircle`, `Mail`, `Phone`). Each opens the appropriate link:
 
-- `amt` = dish price as a number
-- `msg` = `{locationName}_{dishName}` with spaces removed, truncated to 50 characters
+- Messenger: `https://m.me/YOUR_PAGE` (placeholder, needs real link)
+- Email: `mailto:hello@sizzle.se` (placeholder)
+- Phone: `tel:+46XXXXXXXXX` (placeholder)
 
-Example: location "Sizzle", dish "Grillad Kyckling" → `msg=Sizzle_GrilladKyckling`
+**Files**: `src/pages/Storytel.tsx`, `src/pages/Sizzle.tsx` -- add `<ContactButtons />` at the bottom of each page.
 
-### Changes
+### 4. Tighten mobile layout on Storytel
 
-`**src/components/menu/DishCard.tsx**`
+`**src/components/menu/DayTabs.tsx**`:
 
-Add two new props:
+- Remove `overflow-x-auto` and `min-w-[60px]`
+- Make buttons equal-width with smaller padding on mobile (`px-2 py-2 sm:px-4 sm:py-3`)
+- Always show the short label on mobile, full label on sm+
 
-- `showBuyButton?: boolean` (default `false`)
-- `locationName?: string`
+`**src/pages/Storytel.tsx**`:
 
-When `showBuyButton` is true and `locationName` is provided:
+- Move `DayTabs` and `WeekSelector` to separate rows instead of side-by-side:
+  - Row 1: `DayTabs` (full width)
+  - Row 2: `WeekSelector` (aligned right or left)
 
-- Build the Swish URL using dish price and a sanitized `{location}_{dishName}` string (no spaces, max 50 chars)
-- Render a "Köp nu" / "Buy now" button (language-aware) in the card header row, next to the chevron
-- Button opens the URL in a new tab (`window.open` / `<a target="_blank">`)
-- The use case is in the phone and the url opens an app swish in the phone.
-- Button click must stop propagation so it doesn't toggle the collapsible
+`**src/components/menu/FilterBar.tsx**`:
 
-`**src/pages/Storytel.tsx**`
+- Put `VeganToggle` and `SortDropdown` on the same row on mobile (they already are in a flex-wrap container, but ensure `CategoryToggle` is on its own row and the vegan+sort pair stays together)
 
-Pass to DishCard:
+### Files to modify
 
-- `showBuyButton={dish.category === 'snacks'}` — only snacks get the button
-- `locationName="Storytel"`
-
-`**src/pages/Sizzle.tsx**`
-
-Pass to DishCard:
-
-- `showBuyButton={true}` — all items get the button
-- `locationName="Sizzle"`
-
-### Files to Modify
-
-- `src/components/menu/DishCard.tsx` — add buy button with Swish URL logic
-- `src/pages/Storytel.tsx` — pass `showBuyButton` and `locationName`
-- `src/pages/Sizzle.tsx` — pass `showBuyButton` and `locationName`
+- `src/components/menu/DishCard.tsx` -- hyphen in URL
+- `src/pages/Storytel.tsx` --  layout changes, add contact buttons
+- `src/pages/Sizzle.tsx` -- add contact buttons
+- `src/components/menu/DayTabs.tsx` -- compact mobile layout
+- `src/components/menu/FilterBar.tsx` -- tighten mobile layout
+- `src/components/menu/ContactButtons.tsx` -- new component
