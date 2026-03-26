@@ -7,6 +7,11 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import NotFound from "./pages/NotFound";
 import Storytel from "./pages/Storytel";
 import Sizzle from "./pages/Sizzle";
+import Embark from "./pages/Embark";
+import Tobii from "./pages/Tobii";
+import Ahouse from "./pages/Ahouse";
+import King from "./pages/King";
+import Nordnet from "./pages/Nordnet";
 
 const queryClient = new QueryClient();
 
