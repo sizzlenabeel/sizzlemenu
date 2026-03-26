@@ -12,15 +12,25 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface DishCardProps {
   dish: Dish;
   showPrice?: boolean;
+  showBuyButton?: boolean;
+  locationName?: string;
 }
 
-export function DishCard({ dish, showPrice = true }: DishCardProps) {
+export function DishCard({ dish, showPrice = true, showBuyButton = false, locationName }: DishCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useLanguage();
   const isSwedish = language === 'sv';
 
   const bestBeforeLabel = isSwedish ? 'Bäst före' : 'Best before';
+  const buyLabel = isSwedish ? 'Köp nu' : 'Buy now';
   const formattedDate = format(dish.dueDate, 'd MMM', { locale: isSwedish ? sv : undefined });
+
+  const swishUrl = showBuyButton && locationName
+    ? (() => {
+        const msg = `${locationName}_${dish.name}`.replace(/\s+/g, '').substring(0, 50);
+        return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${dish.price}&cur=SEK&msg=${msg}&edit=amt,msg&src=qr`;
+      })()
+    : null;
 
   return (
     <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg animate-fade-in">
@@ -55,12 +65,25 @@ export function DishCard({ dish, showPrice = true }: DishCardProps) {
                   )}
                 </div>
               </div>
-              <ChevronDown
-                className={cn(
-                  "h-5 w-5 text-muted-foreground transition-transform duration-200 shrink-0",
-                  isOpen && "rotate-180"
+              <div className="flex items-center gap-2 shrink-0">
+                {swishUrl && (
+                  <a
+                    href={swishUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-medium px-3 py-1.5 hover:bg-primary/90 transition-colors"
+                  >
+                    {buyLabel}
+                  </a>
                 )}
-              />
+                <ChevronDown
+                  className={cn(
+                    "h-5 w-5 text-muted-foreground transition-transform duration-200 shrink-0",
+                    isOpen && "rotate-180"
+                  )}
+                />
+              </div>
             </div>
           </CardHeader>
         </CollapsibleTrigger>

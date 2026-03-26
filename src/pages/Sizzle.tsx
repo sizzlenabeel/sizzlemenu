@@ -75,7 +75,7 @@ export default function Sizzle() {
             ))
           ) : filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
-              <DishCard key={dish.id} dish={dish} />
+              <DishCard key={dish.id} dish={dish} showBuyButton locationName="Sizzle" />
             ))
           ) : (
             <EmptyState message={`No ${filters.category} available`} />

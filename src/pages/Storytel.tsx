@@ -85,7 +85,7 @@ export default function Storytel() {
             ))
           ) : filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
-              <DishCard key={dish.id} dish={dish} showPrice={dish.category === 'snacks'} />
+              <DishCard key={dish.id} dish={dish} showPrice={dish.category === 'snacks'} showBuyButton={dish.category === 'snacks'} locationName="Storytel" />
             ))
           ) : (
             <EmptyState message={filters.category === 'snacks' ? 'No snacks available' : `No ${filters.category} available for ${selectedDay}`} />
