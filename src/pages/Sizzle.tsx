@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/menu/EmptyState";
 import { WeekSelector, getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ContactButtons } from "@/components/menu/ContactButtons";
 
 export default function Sizzle() {
   const [selectedWeek, setSelectedWeek] = useState<number>(getCurrentWeek);
@@ -81,6 +82,8 @@ export default function Sizzle() {
             <EmptyState message={`No ${filters.category} available`} />
           )}
         </div>
+
+        <ContactButtons />
       </div>
     </div>
   );
