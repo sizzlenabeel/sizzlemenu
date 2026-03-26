@@ -27,7 +27,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
 
   const swishUrl = showBuyButton && locationName
     ? (() => {
-        const msg = `${locationName}_${dish.name}`.replace(/\s+/g, '').substring(0, 50);
+        const msg = `${locationName}-${dish.name}`.replace(/\s+/g, '').substring(0, 50);
         return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${dish.price}&cur=SEK&msg=${msg}&edit=amt,msg&src=qr`;
       })()
     : null;

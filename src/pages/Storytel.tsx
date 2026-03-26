@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/menu/EmptyState";
 import { WeekSelector, getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ContactButtons } from "@/components/menu/ContactButtons";
 
 export default function Storytel() {
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('monday');
@@ -69,9 +70,11 @@ export default function Storytel() {
           subtitle="Daily rotating menu" 
         />
         
-        <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="space-y-3 mb-4">
           <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
-          <WeekSelector selectedWeek={selectedWeek} onChange={setSelectedWeek} />
+          <div className="flex justify-end">
+            <WeekSelector selectedWeek={selectedWeek} onChange={setSelectedWeek} />
+          </div>
         </div>
         
         <div className="mt-6">
@@ -91,6 +94,8 @@ export default function Storytel() {
             <EmptyState message={filters.category === 'snacks' ? 'No snacks available' : `No ${filters.category} available for ${selectedDay}`} />
           )}
         </div>
+
+        <ContactButtons />
       </div>
     </div>
   );

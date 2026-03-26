@@ -16,13 +16,13 @@ const days: { value: DayOfWeek; label: string; short: string }[] = [
 
 export function DayTabs({ selectedDay, onChange }: DayTabsProps) {
   return (
-    <div className="flex gap-1 p-1 bg-secondary rounded-xl overflow-x-auto">
+    <div className="flex gap-1 p-1 bg-secondary rounded-xl">
       {days.map((day) => (
         <button
           key={day.value}
           onClick={() => onChange(day.value)}
           className={cn(
-            "flex-1 min-w-[60px] px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200",
+            "flex-1 px-2 py-2 sm:px-4 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200",
             selectedDay === day.value
               ? "bg-primary text-primary-foreground shadow-md"
               : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"

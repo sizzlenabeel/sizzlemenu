@@ -22,9 +22,9 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+    <div className="flex flex-col gap-3 mb-6">
       <CategoryToggle value={filters.category} onChange={handleCategoryChange} />
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex items-center justify-between gap-4">
         <VeganToggle checked={filters.veganOnly} onChange={handleVeganChange} />
         <SortDropdown value={filters.sortBy} onChange={handleSortChange} />
       </div>
