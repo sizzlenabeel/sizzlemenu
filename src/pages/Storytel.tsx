@@ -92,6 +92,7 @@ export default function Storytel() {
         </div>
 
         <ContactButtons />
+        <CartBar locationName="Storytel" />
       </div>
     </div>
   );

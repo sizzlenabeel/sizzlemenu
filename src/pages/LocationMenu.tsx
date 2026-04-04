@@ -80,6 +80,7 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
         </div>
 
         <ContactButtons />
+        <CartBar locationName={locationName} />
       </div>
     </div>
   );
