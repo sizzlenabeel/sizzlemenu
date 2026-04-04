@@ -8,6 +8,7 @@ import { getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContactButtons } from "@/components/menu/ContactButtons";
+import { CartBar } from "@/components/menu/CartBar";
 
 interface LocationMenuProps {
   locationName: string;
@@ -26,8 +27,10 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
   const filteredDishes = useMemo(() => {
     if (!allDishes) return [];
 
+    const now = new Date();
     let result = allDishes.filter((dish) => {
       if (dish.isOnlyForStorytel) return false;
+      if (dish.dueDate < now) return false;
       if (dish.category !== filters.category) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
       if (dish.weekNumber !== selectedWeek) return false;
@@ -77,6 +80,7 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
         </div>
 
         <ContactButtons />
+        <CartBar locationName={locationName} />
       </div>
     </div>
   );

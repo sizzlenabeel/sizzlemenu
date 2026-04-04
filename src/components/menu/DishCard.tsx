@@ -3,11 +3,12 @@ import { Dish } from "@/types/menu";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Leaf, Calendar } from "lucide-react";
+import { ChevronDown, Leaf, Calendar, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCart } from "@/contexts/CartContext";
 
 interface DishCardProps {
   dish: Dish;
@@ -19,10 +20,12 @@ interface DishCardProps {
 export function DishCard({ dish, showPrice = true, showBuyButton = false, locationName }: DishCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useLanguage();
+  const { addToCart } = useCart();
   const isSwedish = language === 'sv';
 
   const bestBeforeLabel = isSwedish ? 'Bäst före' : 'Best before';
   const buyLabel = isSwedish ? 'Köp nu' : 'Buy now';
+  const addToCartLabel = isSwedish ? 'Lägg i varukorg' : 'Add to cart';
   const formattedDate = format(dish.dueDate, 'd MMM', { locale: isSwedish ? sv : undefined });
 
   const swishUrl = showBuyButton && locationName
@@ -66,6 +69,18 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {showBuyButton && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(dish);
+                    }}
+                    className="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground text-xs font-medium px-2.5 py-1.5 hover:bg-secondary/80 transition-colors"
+                    title={addToCartLabel}
+                  >
+                    <ShoppingCart className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 {swishUrl && (
                   <a
                     href={swishUrl}
