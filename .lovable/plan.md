@@ -1,42 +1,64 @@
 
 
-## Add 5 New Location Pages
+## Plan: Add Cart Functionality and Hide Expired Items
 
-Each page is identical to `/sizzle` but with a different URL slug and location name passed to `DishCard` for the Swish URL.
+### No Database Changes Needed
+Both features are purely client-side. The cart is ephemeral (per-session), and due date filtering already exists in the data.
 
-### Approach
+---
 
-Rather than duplicating `Sizzle.tsx` five times, create a single reusable component and use it across all location pages.
+### 1. Hide Expired Items on All Pages
 
-### Changes
+**Problem**: `LocationMenu.tsx` (used by Sizzle, Embark, Tobii, etc.) does not filter out items past their due date. Storytel already does this but only for food (snacks bypass it).
 
-**Create `src/pages/LocationMenu.tsx`**
-- Extract the Sizzle page logic into a component that accepts a `locationName` prop
-- Everything else stays identical (filters, week selector, dish cards, contact buttons)
+**Fix in `src/pages/LocationMenu.tsx`**: Add `if (dish.dueDate < new Date()) return false;` to the filter logic.
 
-**Create 5 thin page files** (each just renders `<LocationMenu locationName="X" />`):
-- `src/pages/Embark.tsx` → locationName="Embark"
-- `src/pages/Tobii.tsx` → locationName="Tobii"
-- `src/pages/Ahouse.tsx` → locationName="Ahouse"
-- `src/pages/King.tsx` → locationName="King"
-- `src/pages/Nordnet.tsx` → locationName="Nordnet"
+**Fix in `src/pages/Storytel.tsx`**: Move the `dueDate < now` check before the category-specific logic so it applies to both food and snacks.
 
-**Refactor `src/pages/Sizzle.tsx`** to also use `<LocationMenu locationName="Sizzle" />`
+---
 
-**Update `src/App.tsx`** — add 5 new routes:
-- `/embark` → Embark
-- `/tobii` → Tobii
-- `/ahouse` → Ahouse
-- `/king` → King
-- `/nordnet` → Nordnet
+### 2. Add Cart Functionality
 
-### Files
-- `src/pages/LocationMenu.tsx` — new shared component (extracted from Sizzle)
-- `src/pages/Sizzle.tsx` — simplified to use LocationMenu
-- `src/pages/Embark.tsx` — new
-- `src/pages/Tobii.tsx` — new
-- `src/pages/Ahouse.tsx` — new
-- `src/pages/King.tsx` — new
-- `src/pages/Nordnet.tsx` — new
-- `src/App.tsx` — add 5 routes
+**New file: `src/contexts/CartContext.tsx`**
+- React context providing cart state scoped per location
+- State: array of `{ dish: Dish, quantity: number }`
+- Actions: `addToCart(dish)`, `removeFromCart(dishId)`, `clearCart()`, `getCartTotal()`
+- Wrap the app with `CartProvider` in `App.tsx`
+
+**New file: `src/components/menu/CartBar.tsx`**
+- Sticky bottom bar that appears when cart has items
+- Shows item count, total price, and a "Pay with Swish" button
+- Swish URL format: `locationName-{firstWordOfItem1}{firstWordOfItem2}...` (no spaces, max 50 chars), total price as `amt`
+- "Clear cart" button
+
+**Modify `src/components/menu/DishCard.tsx`**
+- Replace the individual "Buy now" link with an "Add to cart" button (+ icon or text)
+- When tapped, calls `addToCart(dish)` from context
+- Keep the individual buy button as well, so users can either buy one item or add to cart
+
+**Modify `src/pages/LocationMenu.tsx`**
+- Render `<CartBar locationName={locationName} />` at the bottom
+- Pass location name for Swish URL generation
+
+**Modify `src/pages/Storytel.tsx`**
+- Same: render `<CartBar locationName="Storytel" />` (only relevant for snacks since food has no buy button)
+
+**Modify `src/App.tsx`**
+- Wrap routes with `<CartProvider>`
+
+### Swish URL Message Format (Cart)
+
+For a cart with items "Chicken Teriyaki" and "Mango Smoothie" at location "Sizzle":
+- Message: `Sizzle-ChickenMango` (first word of each item, concatenated, no spaces, max 50 chars)
+- Amount: sum of all item prices
+
+### Files to Create
+- `src/contexts/CartContext.tsx`
+- `src/components/menu/CartBar.tsx`
+
+### Files to Modify
+- `src/App.tsx` -- wrap with CartProvider
+- `src/components/menu/DishCard.tsx` -- add "Add to cart" button alongside existing buy button
+- `src/pages/LocationMenu.tsx` -- add expired filter + render CartBar
+- `src/pages/Storytel.tsx` -- fix expired filter for snacks + render CartBar
 
