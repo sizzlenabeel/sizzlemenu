@@ -27,8 +27,10 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
   const filteredDishes = useMemo(() => {
     if (!allDishes) return [];
 
+    const now = new Date();
     let result = allDishes.filter((dish) => {
       if (dish.isOnlyForStorytel) return false;
+      if (dish.dueDate < now) return false;
       if (dish.category !== filters.category) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
       if (dish.weekNumber !== selectedWeek) return false;
