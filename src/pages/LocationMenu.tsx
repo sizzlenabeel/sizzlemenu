@@ -8,6 +8,7 @@ import { getCurrentWeek } from "@/components/menu/WeekSelector";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContactButtons } from "@/components/menu/ContactButtons";
+import { CartBar } from "@/components/menu/CartBar";
 
 interface LocationMenuProps {
   locationName: string;
