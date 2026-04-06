@@ -1,64 +1,98 @@
+## Plan: Text Wrapping, Tile View, Delivery Day Filtering, Remove Week Selector
+
+### 1. Fix Text Wrapping (Full Names Shown)
+
+**File**: `src/components/menu/DishCard.tsx`
+
+- Remove `truncate` class from the dish name `<h3>` so full names wrap naturally
+- This applies to both list and tile views
+- Move layout of cards so that the name has space and other tags like "vegan" and buttons to buy and add to cart are moved to the next row as applicable.
+- Keep current width of tiles as it is in mobile
+
+### 2. Add Tile View Toggle
+
+**New file**: `src/components/menu/ViewToggle.tsx`
+
+- A toggle button (list icon / grid icon) that switches between `'list'` and `'tile'` view modes
+
+**File**: `src/components/menu/DishCard.tsx`
+
+- Add a new `DishTile` component (or a `variant` prop) that renders a card with:
+  - An image placeholder area (using a gray placeholder or `dish.imageUrl` if present)
+  - Name, price, vegan badge, and buy/cart buttons below the image
+  - Tapping the tile expands just like how the list view expands
+- The tile layout uses a CSS grid (2 columns on mobile, 3-4 on desktop)
+
+**File**: `src/types/menu.ts`
+
+- Add `imageUrl?: string` to the `Dish` interface (optional, for future use)
+
+**Files**: `src/pages/LocationMenu.tsx`, `src/pages/Storytel.tsx`
+
+- Add `viewMode` state (`'list' | 'tile'`)
+- Render `ViewToggle` in the filter bar area
+- Conditionally render dishes in a grid (tile) or stacked list
+
+### 3. Delivery Day Filtering for Non-Storytel Locations
+
+**Logic**: For locations other than Storytel, use the `sizzle_deliveryday` column. Items are shown as available only on or after their delivery day within the current week. Items scheduled for a future day in the current week appear greyed out as "upcoming" under all active items.
+
+**File**: `src/hooks/useProducts.ts`
+
+- Add `sizzle_deliveryday` to the select query
+- Map it to a new field `sizzleDeliveryDay?: DayOfWeek` on the Dish type
+
+**File**: `src/types/menu.ts`
+
+- Add `sizzleDeliveryDay?: DayOfWeek` to `Dish`
+
+**File**: `src/pages/LocationMenu.tsx`
+
+- Replace simple filtering with delivery-day-aware logic:
+  - Get today's day of week (monday=0...friday=4)
+  - Items where `sizzleDeliveryDay` day index <= today's index: show normally (available)
+  - Items where `sizzleDeliveryDay` day index > today's index: show greyed out as "upcoming"
+  - Items past due date: still hidden
+- Render available items first, then an "Upcoming Deliveries" section with greyed-out cards
+
+**File**: `src/components/menu/DishCard.tsx`
+
+- Add an `upcoming?: boolean` prop that applies greyed-out styling (opacity, disabled buttons, "upcoming" label)
+
+### 4. Remove Week Selector (Current Week Only)
+
+**File**: `src/components/menu/FilterBar.tsx`
+
+- Remove `WeekSelector` component and its props (`selectedWeek`, `onWeekChange`)
+- The filter bar no longer needs week-related props
+- &nbsp;
+
+**File**: `src/components/menu/WeekSelector.tsx`
+
+- Can be deleted or left unused
+
+**Files**: `src/pages/LocationMenu.tsx`, `src/pages/Storytel.tsx`
+
+- Remove `selectedWeek` state; hardcode `getCurrentWeek()` inline in the filter logic
+- Remove `onWeekChange` prop passed to `FilterBar`
+- Simplify `FilterBar` props
+- Move sorting component up next to vegan toggle in mobile viewport.
+
+### Files Summary
 
 
-## Plan: Add Cart Functionality and Hide Expired Items
+| File                                   | Action                                                                     |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| `src/types/menu.ts`                    | Add `imageUrl?`, `sizzleDeliveryDay?`                                      |
+| `src/hooks/useProducts.ts`             | Fetch `sizzle_deliveryday`, map to dish                                    |
+| `src/components/menu/DishCard.tsx`     | Remove truncate, add `upcoming` prop styling, add tile variant             |
+| `src/components/menu/ViewToggle.tsx`   | New -- list/tile toggle                                                    |
+| `src/components/menu/FilterBar.tsx`    | Remove WeekSelector, add ViewToggle                                        |
+| `src/pages/LocationMenu.tsx`           | Delivery day logic with upcoming section, remove week state, add view mode |
+| `src/pages/Storytel.tsx`               | Remove week state, add view mode                                           |
+| `src/components/menu/WeekSelector.tsx` | Delete                                                                     |
+
 
 ### No Database Changes Needed
-Both features are purely client-side. The cart is ephemeral (per-session), and due date filtering already exists in the data.
 
----
-
-### 1. Hide Expired Items on All Pages
-
-**Problem**: `LocationMenu.tsx` (used by Sizzle, Embark, Tobii, etc.) does not filter out items past their due date. Storytel already does this but only for food (snacks bypass it).
-
-**Fix in `src/pages/LocationMenu.tsx`**: Add `if (dish.dueDate < new Date()) return false;` to the filter logic.
-
-**Fix in `src/pages/Storytel.tsx`**: Move the `dueDate < now` check before the category-specific logic so it applies to both food and snacks.
-
----
-
-### 2. Add Cart Functionality
-
-**New file: `src/contexts/CartContext.tsx`**
-- React context providing cart state scoped per location
-- State: array of `{ dish: Dish, quantity: number }`
-- Actions: `addToCart(dish)`, `removeFromCart(dishId)`, `clearCart()`, `getCartTotal()`
-- Wrap the app with `CartProvider` in `App.tsx`
-
-**New file: `src/components/menu/CartBar.tsx`**
-- Sticky bottom bar that appears when cart has items
-- Shows item count, total price, and a "Pay with Swish" button
-- Swish URL format: `locationName-{firstWordOfItem1}{firstWordOfItem2}...` (no spaces, max 50 chars), total price as `amt`
-- "Clear cart" button
-
-**Modify `src/components/menu/DishCard.tsx`**
-- Replace the individual "Buy now" link with an "Add to cart" button (+ icon or text)
-- When tapped, calls `addToCart(dish)` from context
-- Keep the individual buy button as well, so users can either buy one item or add to cart
-
-**Modify `src/pages/LocationMenu.tsx`**
-- Render `<CartBar locationName={locationName} />` at the bottom
-- Pass location name for Swish URL generation
-
-**Modify `src/pages/Storytel.tsx`**
-- Same: render `<CartBar locationName="Storytel" />` (only relevant for snacks since food has no buy button)
-
-**Modify `src/App.tsx`**
-- Wrap routes with `<CartProvider>`
-
-### Swish URL Message Format (Cart)
-
-For a cart with items "Chicken Teriyaki" and "Mango Smoothie" at location "Sizzle":
-- Message: `Sizzle-ChickenMango` (first word of each item, concatenated, no spaces, max 50 chars)
-- Amount: sum of all item prices
-
-### Files to Create
-- `src/contexts/CartContext.tsx`
-- `src/components/menu/CartBar.tsx`
-
-### Files to Modify
-- `src/App.tsx` -- wrap with CartProvider
-- `src/components/menu/DishCard.tsx` -- add "Add to cart" button alongside existing buy button
-- `src/pages/LocationMenu.tsx` -- add expired filter + render CartBar
-- `src/pages/Storytel.tsx` -- fix expired filter for snacks + render CartBar
-
+The `sizzle_deliveryday` column already exists. The `imageUrl` field is optional and will use a placeholder until a source is configured later.
