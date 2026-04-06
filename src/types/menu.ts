@@ -6,6 +6,8 @@ export type SortOption = 'price' | 'dueDate';
 
 export type Language = 'sv' | 'en';
 
+export type ViewMode = 'list' | 'tile';
+
 export interface Dish {
   id: string;
   name: string;
@@ -19,6 +21,8 @@ export interface Dish {
   isVegan: boolean;
   day?: DayOfWeek;
   weekNumber?: number;
+  imageUrl?: string;
+  sizzleDeliveryDay?: DayOfWeek;
 }
 
 export interface MenuFilters {

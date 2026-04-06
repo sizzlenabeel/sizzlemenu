@@ -23,10 +23,10 @@ interface ProductRow {
   is_only_for_storytel: boolean | null;
   delivery_day: string | null;
   week_number: number | null;
+  sizzle_deliveryday: string | null;
 }
 
 function parseIngredients(ingredients: string | null, translatedIngredients: unknown): string[] {
-  // translated_ingredients is stored as JSONB array
   if (Array.isArray(translatedIngredients) && translatedIngredients.length > 0) {
     return translatedIngredients.map(String);
   }
@@ -70,7 +70,8 @@ export function useProducts() {
           is_for_storytel,
           is_only_for_storytel,
           delivery_day,
-          week_number
+          week_number,
+          sizzle_deliveryday
         `);
 
       if (error) throw error;
@@ -95,6 +96,7 @@ export function useProducts() {
           isForStorytel: row.is_for_storytel || false,
           isOnlyForStorytel: row.is_only_for_storytel || false,
           weekNumber: row.week_number ?? undefined,
+          sizzleDeliveryDay: parseDayOfWeek(row.sizzle_deliveryday),
         };
       });
 
