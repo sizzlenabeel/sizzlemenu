@@ -13,6 +13,7 @@ import Tobii from "./pages/Tobii";
 import Ahouse from "./pages/Ahouse";
 import King from "./pages/King";
 import Nordnet from "./pages/Nordnet";
+import Home from "./pages/Home";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/" element={<Home />} />
               <Route path="/storytel" element={<Storytel />} />
               <Route path="/sizzle" element={<Sizzle />} />
               <Route path="/embark" element={<Embark />} />
