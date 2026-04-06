@@ -13,6 +13,7 @@ import Tobii from "./pages/Tobii";
 import Ahouse from "./pages/Ahouse";
 import King from "./pages/King";
 import Nordnet from "./pages/Nordnet";
+import Home from "./pages/Home";
 
 const queryClient = new QueryClient();
 
