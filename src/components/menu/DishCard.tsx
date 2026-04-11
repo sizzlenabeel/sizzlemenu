@@ -107,9 +107,9 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                     {showBuyButton && (
                       <button
                         onClick={(e) => { e.stopPropagation(); addToCart(dish); }}
-                        className="flex-1 min-w-0 inline-flex items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary text-xs font-bold uppercase px-3 py-2.5 hover:bg-primary/20 transition-colors text-center whitespace-normal"
+                        className="inline-flex items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-10 h-10 shrink-0"
                       >
-                        {addToCartLabel}
+                        <ShoppingCart className="h-4 w-4" />
                       </button>
                     )}
                     {swishUrl && (
