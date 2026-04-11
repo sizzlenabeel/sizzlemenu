@@ -1,74 +1,83 @@
+## Redesign DishCard to Match Reference Screenshots
 
+The reference images show a clean, spacious card design with distinct visual hierarchy. Here's the new layout:
 
-## Fix DishCard Layout Consistency
-
-### Problem
-Card contents (name, price, badges, buttons) are not aligned consistently across cards. When one card has a vegan badge or allergens and another doesn't, elements shift around, making the UI look messy -- especially on mobile.
-
-### Design Approach
-Use a **structured row-based layout** with fixed zones so every card aligns regardless of content variability.
-
----
-
-### List View -- New Structure
-
-Each card will have 3 clearly separated rows:
+### Tile View (Primary — matches screenshot 1)
 
 ```text
-┌──────────────────────────────────────────┐
-│ Row 1: Name                          ▼   │
-│ Row 2: [Vegan] [Upcoming]  ⚠allergens   │
-│ Row 3: 85 kr  · Best before: 5 Apr  │🛒│Buy│
-└──────────────────────────────────────────┘
+┌─────────────────────────┐
+│  Tags
+|                   ┌────┐│
+│     [IMAGE]       │85kr││
+│                   └────┘│
+├─────────────────────────┤
+│ Dish Name            ♡  │
+│                         │
+│ 📅 Best before: 5 Apr   │
+│                         │
+│ [ADD TO CART] [BUY NOW] │
+└─────────────────────────┘
 ```
 
-- **Row 1**: Dish name (bold, large) + chevron right-aligned. Name wraps freely.
-- **Row 2**: Badges row -- vegan badge, upcoming badge, allergens. Uses `min-h-[28px]` so the row occupies consistent space even when empty (no badges).
-- **Row 3**: Price (large, bold, primary color for emphasis) + best-before date on the left; action buttons (cart icon + "Buy now") pushed to the right via `justify-between`. Price gets bumped up to `text-base font-bold text-primary` for prominence. Buttons get slightly larger touch targets.
+Key design elements from the reference:
 
-### Tile View -- New Structure
+- **Image takes up the top half** with a rounded top. Price overlaid as a badge in the top-right corner of the image.
+- **Name is large and bold** (serif-style or heavier weight), left-aligned below image.
+- **Badges** (Vegan, allergens) displayed as rounded pill badges below the name.
+- **Best before** line with calendar icon, smaller text.
+- **Two full-width buttons** side by side: "ADD TO CART" (outlined/secondary) and "BUY NOW" (filled/primary). Both are prominent with generous padding.
+
+### List View (matches screenshot 2)
 
 ```text
-┌──────────────┐
-│   [image]    │
-├──────────────┤
-│ Name         │
-│ [Vegan]      │
-│ 85 kr        │
-│ BB: 5 Apr    │
-│ [🛒] [Buy]  │
-└──────────────┘
+┌─────────────────────────────────────┐
+│ [VEGAN]  [GLUTEN-FREE]             │
+│                                     │
+│ Dish Name                           │
+│                                     │
+│ Best before  Allergen 1, alleergne2
+     5 Apr    │      allergen 3, 4
+│                                     │
+│ 85 kr                               │
+│                                     │
+│ Add to Cart        [  BUY NOW  ]    │
+└─────────────────────────────────────┘
 ```
 
-- Each section is a distinct block with consistent spacing (`space-y-2`)
-- Price gets `text-base font-bold text-primary` -- visually dominant
-- Buttons stretch to fill width (`flex w-full`) for easy tapping on mobile
-- `min-h` on the name area ensures cards align in the grid even with different name lengths
+Key design elements:
 
-### Key Changes in `src/components/menu/DishCard.tsx`
+- **Badges at the top** of the card (before name).
+- **Name is large, bold** — dominant element.
+- **Best before** on its own line, smaller.
+- **Price is very large and prominent** — colored in primary, big font size (`text-2xl` or `text-3xl`).
+- **Buttons at the bottom**: "Add to Cart" as text link, "BUY NOW" as filled rounded button.
 
-**List view:**
-- Restructure into 3 explicit rows with consistent spacing
-- Price: `text-base font-bold text-primary` (was `text-sm font-semibold`)
-- Buy button: larger padding, `px-4 py-2` (was `px-3 py-1.5`)
-- Cart button: larger `h-4 w-4` icon
-- Allergens moved to row 2 with badges (out of the price row)
-- Row 2 gets `min-h-[28px]` for consistency when no badges exist
+### Changes to `src/components/menu/DishCard.tsx`
 
 **Tile view:**
-- Use `flex flex-col` with `flex-grow` on the content area so buttons always sit at the bottom
-- Price: `text-base font-bold text-primary`
-- Buttons: full-width row at the bottom of each tile
-- Name area: `min-h-[2.5rem]` to keep grid alignment
+
+- Image area: `aspect-[4/3]` with price badge overlaid (`absolute top-2 right-2`) in a rounded badge with primary bg.
+- Below image: name (`text-lg font-bold`), badges row, best-before line, then two side-by-side buttons pushed to bottom via `mt-auto`.
+- "ADD TO CART" button: outlined style, uppercase, `border border-primary text-primary`.
+- "BUY NOW" button: filled primary, uppercase, rounded-full or rounded-lg.
+- Remove chevron from tile view — expand on tap still works but no arrow clutter.
+
+**List view:**
+
+- Remove the compact 3-row layout. Use a more spacious vertical stack.
+- Order: badges → name → best-before → price (large, `text-2xl font-bold text-primary`) → buttons row.
+- "Add to Cart": text-style button (no background). "BUY NOW": filled rounded primary button.
+- More padding (`p-5` or `p-6`), more spacing between sections.
 
 **Both views:**
-- Remove inline badge+price mixing -- price is always its own prominent element
-- Consistent `gap` and `padding` values across all cards
+
+- Upcoming items: same `opacity-50` treatment, buttons disabled.
+- Collapsible details remain the same on expand.
+- Remove the `min-h` hacks — the new spacious layout naturally aligns better.
 
 ### Files
-| File | Action |
-|---|---|
-| `src/components/menu/DishCard.tsx` | Restructure both list and tile layouts |
 
-No other files need changes.
 
+| File                               | Action                                      |
+| ---------------------------------- | ------------------------------------------- |
+| `src/components/menu/DishCard.tsx` | Full redesign of both tile and list layouts |
