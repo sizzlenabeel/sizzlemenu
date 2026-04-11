@@ -103,14 +103,13 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
 
                 {/* Buttons */}
                 {!upcoming && (showBuyButton || swishUrl) && (
-                  <div className="flex items-center gap-1.5 mt-auto pt-2">
+                  <div className="flex items-stretch gap-2 mt-auto pt-3">
                     {showBuyButton && (
                       <button
                         onClick={(e) => { e.stopPropagation(); addToCart(dish); }}
-                        className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border border-primary text-primary text-[10px] font-semibold uppercase px-2 py-1.5 hover:bg-primary/5 transition-colors leading-tight"
+                        className="flex-1 min-w-0 inline-flex items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary text-xs font-bold uppercase px-3 py-2.5 hover:bg-primary/20 transition-colors text-center whitespace-normal"
                       >
-                        <ShoppingCart className="h-3 w-3 shrink-0" />
-                        <span className="truncate">{addToCartLabel}</span>
+                        {addToCartLabel}
                       </button>
                     )}
                     {swishUrl && (
@@ -119,9 +118,9 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-[10px] font-semibold uppercase px-2 py-1.5 hover:bg-primary/90 transition-colors text-center leading-tight"
+                        className="flex-1 min-w-0 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs font-bold uppercase px-3 py-2.5 hover:from-primary/90 hover:to-primary/70 transition-colors text-center whitespace-normal"
                       >
-                        <span className="truncate">{buyLabel}</span>
+                        {buyLabel}
                       </a>
                     )}
                   </div>
