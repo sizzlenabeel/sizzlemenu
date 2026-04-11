@@ -12,7 +12,7 @@ interface CartBarProps {
 
 function buildSwishUrl(locationName: string, items: { dish: { name: string; price: number }; quantity: number }[]) {
   const total = items.reduce((sum, i) => sum + i.dish.price * i.quantity, 0);
-  const firstWords = items.map((i) => i.dish.name.split(/\s+/)[0]).join("");
+  const firstWords = items.map((i) => i.dish.name.split(/\s+/)[0]).join("-");
   const msg = `${locationName}-${firstWords}`.replace(/\s+/g, "").substring(0, 50);
   return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${total}&cur=SEK&msg=${msg}&edit=amt,msg&src=qr`;
 }
