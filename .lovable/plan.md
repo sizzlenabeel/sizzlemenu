@@ -1,38 +1,79 @@
+## Fix DishCard Layout Consistency
 
+### Problem
 
-## Add Sizzle Homepage / Landing Page
+Card contents (name, price, badges, buttons) are not aligned consistently across cards. When one card has a vegan badge or allergens and another doesn't, elements shift around, making the UI look messy -- especially on mobile which is the priority. 
 
-### Overview
-Create a new homepage at `/` featuring brand messaging and a chef gallery with the uploaded photos.
+### Design Approach
 
-### Chef-to-Photo Mapping
-| Chef | Photo file |
-|---|---|
-| Chef Cherry (Jamaica) | `faaf9ab1-9f7f-48b1-be60-306207fc46a7.png` |
-| Chef Kristian & Simon (Sweden / East Asia) | `9d2a03f8-d8e0-4271-b8b0-c38d3508e3fb.png` |
-| Chef Elle (Philippines) | `6a2b64a6-4fca-46b1-ab1c-9b4dd0dcd05a.png` |
-| Chef Ivet (Spain / Turkey) | `4b227686-9b1d-496e-a565-6f123e6dc32c.png` |
-| Chef Adam (Morocco) | `WhatsApp_Image_2026-04-06_at_6.29.23_PM.jpeg` |
-| Chef Chinyere (Nigeria) | `chinyere.png` |
+Use a **structured row-based layout** with fixed zones so every card aligns regardless of content variability.
 
-### Changes
+---
 
-**Copy 6 chef photos** to `src/assets/chefs/` and import them in the homepage component.
+### List View -- New Structure
 
-**Create `src/pages/Home.tsx`**
-- Hero section with "Welcome to Sizzle!" heading and the brand description text
-- "Our Chefs" section below with a responsive grid (2 cols mobile, 3 cols desktop)
-- Each chef card: circular or rounded photo, name, and origin description
-- Clean, minimal design consistent with the existing app style
+Each card will have 3 clearly separated rows:
 
-**Update `src/App.tsx`**
-- Add `<Route path="/" element={<Home />} />` so the root URL serves the homepage
-- Keep `*` route as NotFound
+```text
+┌──────────────────────────────────────────┐
+│ Row 1: Name                          ▼   │
+│ Row 2: [Vegan] [Upcoming]  ⚠allergens   │
+│ Row 3: 85 kr  · Best before: 5 Apr  │🛒│Buy│
+└──────────────────────────────────────────┘
+```
+
+- **Row 1**: Dish name (bold, large) + chevron right-aligned. Name wraps freely.
+- **Row 2**: Badges row -- vegan badge, upcoming badge, allergens. Uses `min-h-[28px]` so the row occupies consistent space even when empty (no badges).
+- **Row 3**: Price (large, bold, primary color for emphasis) + best-before date on the left; action buttons (cart icon + "Buy now") pushed to the right via `justify-between`. Price gets bumped up to `text-base font-bold text-primary` for prominence. Buttons get slightly larger touch targets.
+
+### Tile View -- New Structure
+
+```text
+┌──────────────┐
+│   [image]    │
+├──────────────┤
+│ Name         │
+│ [Vegan]      │
+│ 85 kr        │
+│ BB: 5 Apr    │
+│ [🛒] [Buy]  │
+└──────────────┘
+```
+
+- Each section is a distinct block with consistent spacing (`space-y-2`)
+- Price gets `text-base font-bold text-primary` -- visually dominant
+- Buttons stretch to fill width (`flex w-full`) for easy tapping on mobile
+- `min-h` on the name area ensures cards align in the grid even with different name lengths
+
+### Key Changes in `src/components/menu/DishCard.tsx`
+
+**List view:**
+
+- Restructure into 3 explicit rows with consistent spacing
+- Price: `text-base font-bold text-primary` (was `text-sm font-semibold`)
+- Buy button: larger padding, `px-4 py-2` (was `px-3 py-1.5`)
+- Cart button: larger `h-4 w-4` icon
+- Allergens moved to row 2 with badges (out of the price row)
+- Row 2 gets `min-h-[28px]` for consistency when no badges exist
+
+**Tile view:**
+
+- Use `flex flex-col` with `flex-grow` on the content area so buttons always sit at the bottom
+- Price: `text-base font-bold text-primary`
+- Buttons: full-width row at the bottom of each tile
+- Name area: `min-h-[2.5rem]` to keep grid alignment
+
+**Both views:**
+
+- Remove inline badge+price mixing -- price is always its own prominent element
+- Consistent `gap` and `padding` values across all cards
 
 ### Files
-| File | Action |
-|---|---|
-| `src/assets/chefs/*.png/jpg` | Copy 6 uploaded photos |
-| `src/pages/Home.tsx` | New homepage component |
-| `src/App.tsx` | Add `/` route |
 
+
+| File                               | Action                                 |
+| ---------------------------------- | -------------------------------------- |
+| `src/components/menu/DishCard.tsx` | Restructure both list and tile layouts |
+
+
+No other files need changes.
