@@ -85,7 +85,7 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-4xl py-8 px-4">
-          <MenuHeader locationName={locationName} subtitle="Weekly menu" />
+          <MenuHeader locationName={locationName} subtitle="Weekly menu" viewMode={viewMode} onViewModeChange={setViewMode} />
           <div className="text-center py-12">
             <p className="text-destructive">Failed to load menu. Please try again later.</p>
           </div>
