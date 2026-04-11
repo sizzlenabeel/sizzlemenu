@@ -25,7 +25,7 @@ export function CategoryToggle({ value, onChange }: CategoryToggleProps) {
         className={cn(
           "flex-1 px-6 py-2 rounded-md text-sm font-semibold transition-all duration-200",
           value === 'snacks'
-            ? "bg-snacks text-primary-foreground shadow-md"
+            ? "bg-food text-primary-foreground shadow-md"
             : "text-muted-foreground hover:text-foreground"
         )}
       >

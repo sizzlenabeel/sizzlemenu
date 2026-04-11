@@ -24,7 +24,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   return (
     <div className="flex flex-col gap-3 mb-6">
       <CategoryToggle value={filters.category} onChange={handleCategoryChange} />
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-center gap-3">
         <VeganToggle checked={filters.veganOnly} onChange={handleVeganChange} />
         <SortDropdown value={filters.sortBy} onChange={handleSortChange} />
       </div>
