@@ -1,22 +1,29 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { cn } from '@/lib/utils';
 
 export function LanguageToggle() {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <ToggleGroup
-      type="single"
-      value={language}
-      onValueChange={(value) => value && setLanguage(value as 'sv' | 'en')}
-      className="border rounded-lg"
-    >
-      <ToggleGroupItem value="sv" className="px-3 text-sm font-medium">
+    <div className="inline-flex items-center rounded-md border border-input bg-background">
+      <button
+        onClick={() => setLanguage('sv')}
+        className={cn(
+          "inline-flex items-center justify-center p-2 rounded-l-md transition-colors text-sm font-medium",
+          language === 'sv' ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+        )}
+      >
         SV
-      </ToggleGroupItem>
-      <ToggleGroupItem value="en" className="px-3 text-sm font-medium">
+      </button>
+      <button
+        onClick={() => setLanguage('en')}
+        className={cn(
+          "inline-flex items-center justify-center p-2 rounded-r-md transition-colors text-sm font-medium",
+          language === 'en' ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+        )}
+      >
         EN
-      </ToggleGroupItem>
-    </ToggleGroup>
+      </button>
+    </div>
   );
 }
