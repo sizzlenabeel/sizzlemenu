@@ -1,11 +1,11 @@
+
+
 ## Fix DishCard Layout Consistency
 
 ### Problem
-
-Card contents (name, price, badges, buttons) are not aligned consistently across cards. When one card has a vegan badge or allergens and another doesn't, elements shift around, making the UI look messy -- especially on mobile which is the priority. 
+Card contents (name, price, badges, buttons) are not aligned consistently across cards. When one card has a vegan badge or allergens and another doesn't, elements shift around, making the UI look messy -- especially on mobile.
 
 ### Design Approach
-
 Use a **structured row-based layout** with fixed zones so every card aligns regardless of content variability.
 
 ---
@@ -48,7 +48,6 @@ Each card will have 3 clearly separated rows:
 ### Key Changes in `src/components/menu/DishCard.tsx`
 
 **List view:**
-
 - Restructure into 3 explicit rows with consistent spacing
 - Price: `text-base font-bold text-primary` (was `text-sm font-semibold`)
 - Buy button: larger padding, `px-4 py-2` (was `px-3 py-1.5`)
@@ -57,23 +56,19 @@ Each card will have 3 clearly separated rows:
 - Row 2 gets `min-h-[28px]` for consistency when no badges exist
 
 **Tile view:**
-
 - Use `flex flex-col` with `flex-grow` on the content area so buttons always sit at the bottom
 - Price: `text-base font-bold text-primary`
 - Buttons: full-width row at the bottom of each tile
 - Name area: `min-h-[2.5rem]` to keep grid alignment
 
 **Both views:**
-
 - Remove inline badge+price mixing -- price is always its own prominent element
 - Consistent `gap` and `padding` values across all cards
 
 ### Files
-
-
-| File                               | Action                                 |
-| ---------------------------------- | -------------------------------------- |
+| File | Action |
+|---|---|
 | `src/components/menu/DishCard.tsx` | Restructure both list and tile layouts |
 
-
 No other files need changes.
+
