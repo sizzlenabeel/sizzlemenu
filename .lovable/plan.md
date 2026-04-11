@@ -1,33 +1,24 @@
 
 
-## Modal Refinements (Tile View Only)
+## Small Visual Fixes
 
-### Changes in `src/components/menu/DishCard.tsx`
+### 1. Language Toggle - match height and use orange for selected state
+**File: `src/components/menu/LanguageToggle.tsx`**
+- Replace `ToggleGroup`/`ToggleGroupItem` with a custom button pair matching the `ViewToggle` pattern (same `border border-input bg-background` wrapper, same `p-2` sizing)
+- Selected state uses `bg-primary text-primary-foreground` (orange, same as ViewToggle) instead of the default green/accent
 
-**1. Remove the image section from the modal** (lines 137-157)
-- Delete the entire `aspect-[4/3]` image block
-- Keep the name, price badge, vegan badge, date, and `DishDetails` in the text content area
+### 2. Snacks category - orange instead of purple/blue when selected
+**File: `src/components/menu/CategoryToggle.tsx`**
+- Change `bg-snacks` to `bg-food` (which is orange) for the selected snacks button, so both Food and Snacks highlight in orange
 
-**2. Sticky buttons at the bottom of the modal**
-- Change the `DialogContent` from a single scrollable container to a flex column layout: `flex flex-col` with `overflow-hidden` (not `overflow-y-auto`)
-- The content area (name, date, details) goes in a scrollable `div` with `flex-1 overflow-y-auto p-5`
-- The button row moves outside the scrollable area into a sticky footer: `div` with `p-5 pt-3 border-t bg-background` pinned at the bottom
-
-**Structure:**
-```text
-┌─────────────────────────┐
-│ Name, price, badges     │
-│ Date                    │  ← scrollable
-│ Description             │
-│ Ingredients, allergens  │
-│ Serving instructions    │
-├─────────────────────────┤
-│ [🛒]  [  BUY NOW  ]    │  ← sticky bottom
-└─────────────────────────┘
-```
+### 3. Center the vegan + sort row
+**File: `src/components/menu/FilterBar.tsx`**
+- Change the vegan/sort row from `flex items-center gap-3` to `flex items-center justify-center gap-3`
 
 ### Files
 | File | Change |
 |---|---|
-| `src/components/menu/DishCard.tsx` | Remove image from modal, make buttons sticky at bottom |
+| `src/components/menu/LanguageToggle.tsx` | Rewrite as custom buttons matching ViewToggle height/style, orange selected state |
+| `src/components/menu/CategoryToggle.tsx` | Change snacks selected color from `bg-snacks` to `bg-food` |
+| `src/components/menu/FilterBar.tsx` | Add `justify-center` to vegan/sort row |
 
