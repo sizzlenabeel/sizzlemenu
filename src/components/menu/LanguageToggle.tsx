@@ -9,7 +9,7 @@ export function LanguageToggle() {
       <button
         onClick={() => setLanguage('sv')}
         className={cn(
-          "inline-flex items-center justify-center p-2 rounded-l-md transition-colors text-sm font-medium",
+          "inline-flex items-center justify-center p-2 rounded-l-md transition-colors text-sm font-medium leading-4",
           language === 'sv' ? "bg-primary text-primary-foreground" : "hover:bg-muted"
         )}
       >
@@ -18,7 +18,7 @@ export function LanguageToggle() {
       <button
         onClick={() => setLanguage('en')}
         className={cn(
-          "inline-flex items-center justify-center p-2 rounded-r-md transition-colors text-sm font-medium",
+          "inline-flex items-center justify-center p-2 rounded-r-md transition-colors text-sm font-medium leading-4",
           language === 'en' ? "bg-primary text-primary-foreground" : "hover:bg-muted"
         )}
       >
