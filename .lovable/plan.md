@@ -1,83 +1,38 @@
-## Redesign DishCard to Match Reference Screenshots
 
-The reference images show a clean, spacious card design with distinct visual hierarchy. Here's the new layout:
 
-### Tile View (Primary — matches screenshot 1)
+## DishCard Tile View Fixes + View Toggle Relocation
 
-```text
-┌─────────────────────────┐
-│  Tags
-|                   ┌────┐│
-│     [IMAGE]       │85kr││
-│                   └────┘│
-├─────────────────────────┤
-│ Dish Name            ♡  │
-│                         │
-│ 📅 Best before: 5 Apr   │
-│                         │
-│ [ADD TO CART] [BUY NOW] │
-└─────────────────────────┘
-```
+### 1. Line clamping for name and allergens (tile view only)
 
-Key design elements from the reference:
+- Apply `line-clamp-2` to the dish name (`h3`) and allergens text in the tile view
+- This keeps card height consistent regardless of content length
 
-- **Image takes up the top half** with a rounded top. Price overlaid as a badge in the top-right corner of the image.
-- **Name is large and bold** (serif-style or heavier weight), left-aligned below image.
-- **Badges** (Vegan, allergens) displayed as rounded pill badges below the name.
-- **Best before** line with calendar icon, smaller text.
-- **Two full-width buttons** side by side: "ADD TO CART" (outlined/secondary) and "BUY NOW" (filled/primary). Both are prominent with generous padding.
+### 2. Buttons pinned to bottom (tile view)
 
-### List View (matches screenshot 2)
+- The tile card already uses `flex flex-col` -- add `mt-auto` to the button container so it always sits at the bottom of the card
+- The parent grid in `LocationMenu.tsx` will use `grid-rows-[subgrid]` or simply ensure cards stretch with `items-stretch` (already default for CSS grid), so all cards in a row share the same height
 
-```text
-┌─────────────────────────────────────┐
-│ [VEGAN]  [GLUTEN-FREE]             │
-│                                     │
-│ Dish Name                           │
-│                                     │
-│ Best before  Allergen 1, alleergne2
-     5 Apr    │      allergen 3, 4
-│                                     │
-│ 85 kr                               │
-│                                     │
-│ Add to Cart        [  BUY NOW  ]    │
-└─────────────────────────────────────┘
-```
+### 3. Replace Collapsible with a half-screen modal (tile view only)
 
-Key design elements:
+- Remove the `Collapsible` wrapper from the tile view entirely
+- On tile card click, open a `Dialog` (from existing `@/components/ui/dialog`) styled as a bottom sheet:
+  - Positioned at the bottom of the screen (`fixed bottom-0`), max height `50vh`, scrollable
+  - Top section mirrors the tile card layout (image, name, price, badges)
+  - Below that: full dish details (description, ingredients, allergens, serving instructions)
+- List view keeps the existing `Collapsible` behavior unchanged
 
-- **Badges at the top** of the card (before name).
-- **Name is large, bold** — dominant element.
-- **Best before** on its own line, smaller.
-- **Price is very large and prominent** — colored in primary, big font size (`text-2xl` or `text-3xl`).
-- **Buttons at the bottom**: "Add to Cart" as text link, "BUY NOW" as filled rounded button.
+### 4. Move ViewToggle next to LanguageToggle in the header
 
-### Changes to `src/components/menu/DishCard.tsx`
-
-**Tile view:**
-
-- Image area: `aspect-[4/3]` with price badge overlaid (`absolute top-2 right-2`) in a rounded badge with primary bg.
-- Below image: name (`text-lg font-bold`), badges row, best-before line, then two side-by-side buttons pushed to bottom via `mt-auto`.
-- "ADD TO CART" button: outlined style, uppercase, `border border-primary text-primary`.
-- "BUY NOW" button: filled primary, uppercase, rounded-full or rounded-lg.
-- Remove chevron from tile view — expand on tap still works but no arrow clutter.
-
-**List view:**
-
-- Remove the compact 3-row layout. Use a more spacious vertical stack.
-- Order: badges → name → best-before → price (large, `text-2xl font-bold text-primary`) → buttons row.
-- "Add to Cart": text-style button (no background). "BUY NOW": filled rounded primary button.
-- More padding (`p-5` or `p-6`), more spacing between sections.
-
-**Both views:**
-
-- Upcoming items: same `opacity-50` treatment, buttons disabled.
-- Collapsible details remain the same on expand.
-- Remove the `min-h` hacks — the new spacious layout naturally aligns better.
+- **`MenuHeader.tsx`**: Accept `viewMode` and `onViewModeChange` props, render `ViewToggle` next to `LanguageToggle`
+- **`FilterBar.tsx`**: Remove `ViewToggle` import and rendering, remove `viewMode`/`onViewModeChange` props
+- **`LocationMenu.tsx`**: Pass `viewMode` and `onViewModeChange` to `MenuHeader` instead of `FilterBar`
 
 ### Files
 
+| File | Action |
+|---|---|
+| `src/components/menu/DishCard.tsx` | Line clamp name/allergens, replace collapsible with dialog in tile view, pin buttons to bottom |
+| `src/components/menu/MenuHeader.tsx` | Add ViewToggle next to LanguageToggle |
+| `src/components/menu/FilterBar.tsx` | Remove ViewToggle |
+| `src/pages/LocationMenu.tsx` | Pass viewMode props to MenuHeader instead of FilterBar |
 
-| File                               | Action                                      |
-| ---------------------------------- | ------------------------------------------- |
-| `src/components/menu/DishCard.tsx` | Full redesign of both tile and list layouts |
