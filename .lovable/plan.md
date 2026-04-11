@@ -1,24 +1,15 @@
 
 
-## Small Visual Fixes
+## Fix Swish Cart Message Format
 
-### 1. Language Toggle - match height and use orange for selected state
-**File: `src/components/menu/LanguageToggle.tsx`**
-- Replace `ToggleGroup`/`ToggleGroupItem` with a custom button pair matching the `ViewToggle` pattern (same `border border-input bg-background` wrapper, same `p-2` sizing)
-- Selected state uses `bg-primary text-primary-foreground` (orange, same as ViewToggle) instead of the default green/accent
+### Change
+In `src/components/menu/CartBar.tsx`, update the `buildSwishUrl` function to join the first words of each item with a hyphen instead of concatenating them directly.
 
-### 2. Snacks category - orange instead of purple/blue when selected
-**File: `src/components/menu/CategoryToggle.tsx`**
-- Change `bg-snacks` to `bg-food` (which is orange) for the selected snacks button, so both Food and Snacks highlight in orange
-
-### 3. Center the vegan + sort row
-**File: `src/components/menu/FilterBar.tsx`**
-- Change the vegan/sort row from `flex items-center gap-3` to `flex items-center justify-center gap-3`
+**Current:** `const firstWords = items.map((i) => i.dish.name.split(/\s+/)[0]).join("");`
+**New:** `const firstWords = items.map((i) => i.dish.name.split(/\s+/)[0]).join("-");`
 
 ### Files
 | File | Change |
 |---|---|
-| `src/components/menu/LanguageToggle.tsx` | Rewrite as custom buttons matching ViewToggle height/style, orange selected state |
-| `src/components/menu/CategoryToggle.tsx` | Change snacks selected color from `bg-snacks` to `bg-food` |
-| `src/components/menu/FilterBar.tsx` | Add `justify-center` to vegan/sort row |
+| `src/components/menu/CartBar.tsx` | Change `.join("")` to `.join("-")` on line 16 |
 
