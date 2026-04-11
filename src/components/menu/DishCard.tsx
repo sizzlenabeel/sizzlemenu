@@ -46,8 +46,8 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
       )}>
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger asChild>
-            <div className="cursor-pointer select-none">
-              {/* Image placeholder */}
+            <div className="cursor-pointer select-none flex flex-col h-full">
+              {/* Image */}
               <div className="aspect-square bg-muted flex items-center justify-center">
                 {dish.imageUrl ? (
                   <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
@@ -55,35 +55,48 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                   <ImageIcon className="h-12 w-12 text-muted-foreground/40" />
                 )}
               </div>
-              <div className="p-3">
-                <h3 className="font-bold text-sm leading-tight mb-1">{dish.name}</h3>
-                {upcoming && (
-                  <Badge variant="outline" className="text-xs mb-1">{upcomingLabel}</Badge>
-                )}
-                <div className="flex items-center gap-1 flex-wrap mb-2">
+
+              <div className="p-3 flex flex-col flex-grow space-y-2">
+                {/* Name */}
+                <h3 className="font-bold text-sm leading-tight min-h-[2.5rem]">{dish.name}</h3>
+
+                {/* Badges row */}
+                <div className="min-h-[24px] flex items-center gap-1 flex-wrap">
                   {dish.isVegan && (
                     <Badge variant="secondary" className="bg-vegan/10 text-vegan border-vegan/20 text-xs">
                       <Leaf className="h-3 w-3 mr-0.5" />
                       Vegan
                     </Badge>
                   )}
-                  {showPrice && (
-                    <span className="font-semibold text-sm">{dish.price} kr</span>
+                  {upcoming && (
+                    <Badge variant="outline" className="text-xs">{upcomingLabel}</Badge>
+                  )}
+                  {dish.allergens && (
+                    <span className="text-xs text-muted-foreground italic">⚠ {dish.allergens}</span>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
+
+                {/* Price */}
+                {showPrice && (
+                  <p className="text-base font-bold text-primary">{dish.price} kr</p>
+                )}
+
+                {/* Best before */}
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   {bestBeforeLabel}: {formattedDate}
                 </div>
-                {!upcoming && (
-                  <div className="flex items-center gap-2">
+
+                {/* Actions - pushed to bottom */}
+                {!upcoming && (showBuyButton || swishUrl) && (
+                  <div className="flex items-center gap-2 pt-1 mt-auto">
                     {showBuyButton && (
                       <button
                         onClick={(e) => { e.stopPropagation(); addToCart(dish); }}
-                        className="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground text-xs font-medium px-2 py-1 hover:bg-secondary/80 transition-colors"
+                        className="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground text-xs font-medium px-3 py-2 hover:bg-secondary/80 transition-colors"
                         title={addToCartLabel}
                       >
-                        <ShoppingCart className="h-3.5 w-3.5" />
+                        <ShoppingCart className="h-4 w-4" />
                       </button>
                     )}
                     {swishUrl && (
@@ -92,7 +105,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-medium px-2.5 py-1 hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-medium px-4 py-2 hover:bg-primary/90 transition-colors flex-1 text-center"
                       >
                         {buyLabel}
                       </a>
@@ -121,7 +134,8 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer select-none p-4 hover:bg-secondary/50 transition-colors">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
+              {/* Row 1: Name + Chevron */}
               <div className="flex items-start justify-between gap-4">
                 <h3 className="font-bold text-lg leading-tight">{dish.name}</h3>
                 <ChevronDown
@@ -131,7 +145,9 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                   )}
                 />
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+
+              {/* Row 2: Badges + Allergens */}
+              <div className="min-h-[28px] flex flex-wrap items-center gap-2">
                 {dish.isVegan && (
                   <Badge variant="secondary" className="bg-vegan/10 text-vegan border-vegan/20 shrink-0">
                     <Leaf className="h-3 w-3 mr-1" />
@@ -141,41 +157,48 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                 {upcoming && (
                   <Badge variant="outline" className="text-xs">{upcomingLabel}</Badge>
                 )}
-                {showPrice && (
-                  <span className="font-semibold text-sm text-foreground">{dish.price} kr</span>
-                )}
-                <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  {bestBeforeLabel}: {formattedDate}
-                </span>
                 {dish.allergens && (
                   <span className="text-xs text-muted-foreground italic">⚠ {dish.allergens}</span>
                 )}
               </div>
-              {!upcoming && (showBuyButton || swishUrl) && (
-                <div className="flex items-center gap-2">
-                  {showBuyButton && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); addToCart(dish); }}
-                      className="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground text-xs font-medium px-2.5 py-1.5 hover:bg-secondary/80 transition-colors"
-                      title={addToCartLabel}
-                    >
-                      <ShoppingCart className="h-3.5 w-3.5" />
-                    </button>
+
+              {/* Row 3: Price + Date | Actions */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {showPrice && (
+                    <span className="text-base font-bold text-primary">{dish.price} kr</span>
                   )}
-                  {swishUrl && (
-                    <a
-                      href={swishUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-medium px-3 py-1.5 hover:bg-primary/90 transition-colors"
-                    >
-                      {buyLabel}
-                    </a>
-                  )}
+                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    {bestBeforeLabel}: {formattedDate}
+                  </span>
                 </div>
-              )}
+
+                {!upcoming && (showBuyButton || swishUrl) && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    {showBuyButton && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addToCart(dish); }}
+                        className="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground text-xs font-medium px-3 py-2 hover:bg-secondary/80 transition-colors"
+                        title={addToCartLabel}
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                      </button>
+                    )}
+                    {swishUrl && (
+                      <a
+                        href={swishUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-medium px-4 py-2 hover:bg-primary/90 transition-colors"
+                      >
+                        {buyLabel}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardHeader>
         </CollapsibleTrigger>
