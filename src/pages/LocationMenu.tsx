@@ -85,7 +85,7 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-4xl py-8 px-4">
-          <MenuHeader locationName={locationName} subtitle="Weekly menu" />
+          <MenuHeader locationName={locationName} subtitle="Weekly menu" viewMode={viewMode} onViewModeChange={setViewMode} />
           <div className="text-center py-12">
             <p className="text-destructive">Failed to load menu. Please try again later.</p>
           </div>
@@ -97,13 +97,11 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl py-8 px-4">
-        <MenuHeader locationName={locationName} subtitle="Weekly menu" />
+        <MenuHeader locationName={locationName} subtitle="Weekly menu" viewMode={viewMode} onViewModeChange={setViewMode} />
 
         <FilterBar
           filters={filters}
           onFiltersChange={setFilters}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
         />
 
         <div className={viewMode === 'tile' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-4'}>

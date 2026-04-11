@@ -1,11 +1,15 @@
 import { LanguageToggle } from './LanguageToggle';
+import { ViewToggle } from './ViewToggle';
+import { ViewMode } from '@/types/menu';
 
 interface MenuHeaderProps {
   locationName: string;
   subtitle?: string;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
 }
 
-export function MenuHeader({ locationName, subtitle }: MenuHeaderProps) {
+export function MenuHeader({ locationName, subtitle, viewMode, onViewModeChange }: MenuHeaderProps) {
   return (
     <header className="mb-8">
       <div className="flex items-start justify-between gap-4">
@@ -17,7 +21,10 @@ export function MenuHeader({ locationName, subtitle }: MenuHeaderProps) {
             <p className="text-lg text-muted-foreground">{subtitle}</p>
           )}
         </div>
-        <LanguageToggle />
+        <div className="flex items-center gap-2">
+          <ViewToggle value={viewMode} onChange={onViewModeChange} />
+          <LanguageToggle />
+        </div>
       </div>
     </header>
   );
