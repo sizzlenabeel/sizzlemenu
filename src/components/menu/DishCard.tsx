@@ -103,14 +103,14 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
 
                 {/* Buttons */}
                 {!upcoming && (showBuyButton || swishUrl) && (
-                  <div className="flex items-center gap-2 mt-auto pt-2">
+                  <div className="flex items-center gap-1.5 mt-auto pt-2">
                     {showBuyButton && (
                       <button
                         onClick={(e) => { e.stopPropagation(); addToCart(dish); }}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary text-primary text-xs font-semibold uppercase px-3 py-2.5 hover:bg-primary/5 transition-colors"
+                        className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border border-primary text-primary text-[10px] font-semibold uppercase px-2 py-1.5 hover:bg-primary/5 transition-colors leading-tight"
                       >
-                        <ShoppingCart className="h-3.5 w-3.5" />
-                        {addToCartLabel}
+                        <ShoppingCart className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{addToCartLabel}</span>
                       </button>
                     )}
                     {swishUrl && (
@@ -119,9 +119,9 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-semibold uppercase px-3 py-2.5 hover:bg-primary/90 transition-colors text-center"
+                        className="flex-1 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-[10px] font-semibold uppercase px-2 py-1.5 hover:bg-primary/90 transition-colors text-center leading-tight"
                       >
-                        {buyLabel}
+                        <span className="truncate">{buyLabel}</span>
                       </a>
                     )}
                   </div>
