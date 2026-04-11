@@ -132,61 +132,55 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
 
         {/* Half-screen bottom sheet dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="fixed bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0 max-h-[50vh] w-full max-w-full rounded-t-2xl rounded-b-none p-0 overflow-y-auto data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom sm:rounded-t-2xl sm:rounded-b-none">
+          <DialogContent className="fixed bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0 max-h-[50vh] w-full max-w-full rounded-t-2xl rounded-b-none p-0 overflow-hidden flex flex-col data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom sm:rounded-t-2xl sm:rounded-b-none">
             <DialogTitle className="sr-only">{dish.name}</DialogTitle>
-            {/* Mirror of tile card top */}
-            <div className="relative aspect-[4/3] bg-muted flex items-center justify-center">
-              {dish.imageUrl ? (
-                <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
-              ) : (
-                <ImageIcon className="h-12 w-12 text-muted-foreground/40" />
-              )}
-              {showPrice && (
-                <span className="absolute top-2 right-2 bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full shadow-md">
-                  {dish.price} kr
-                </span>
-              )}
-              <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto p-5">
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <h3 className="font-bold text-xl">{dish.name}</h3>
+                {showPrice && (
+                  <span className="bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full shadow-md shrink-0">
+                    {dish.price} kr
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 {dish.isVegan && (
-                  <Badge variant="secondary" className="bg-vegan/10 text-vegan border-vegan/20 text-xs backdrop-blur-sm">
+                  <Badge variant="secondary" className="bg-vegan/10 text-vegan border-vegan/20 text-xs">
                     <Leaf className="h-3 w-3 mr-0.5" />
                     Vegan
                   </Badge>
                 )}
               </div>
-            </div>
-            {/* Details */}
-            <div className="p-5">
-              <h3 className="font-bold text-xl mb-1">{dish.name}</h3>
               <div className="text-xs text-muted-foreground flex items-center gap-1 mb-4">
                 <Calendar className="h-3 w-3" />
                 {bestBeforeLabel}: {formattedDate}
               </div>
               <DishDetails dish={dish} isSwedish={isSwedish} />
-
-              {!upcoming && (showBuyButton || swishUrl) && (
-                <div className="flex items-center gap-3 mt-4 pt-4 border-t">
-                  {showBuyButton && (
-                    <button
-                      onClick={() => { addToCart(dish); setDialogOpen(false); }}
-                      className="inline-flex items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-10 h-10 shrink-0"
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                    </button>
-                  )}
-                  {swishUrl && (
-                    <a
-                      href={swishUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-sm font-bold uppercase px-6 py-2.5 hover:from-primary/90 hover:to-primary/70 transition-colors"
-                    >
-                      {buyLabel}
-                    </a>
-                  )}
-                </div>
-              )}
             </div>
+            {/* Sticky bottom buttons */}
+            {!upcoming && (showBuyButton || swishUrl) && (
+              <div className="flex items-center gap-3 p-5 pt-3 border-t bg-background">
+                {showBuyButton && (
+                  <button
+                    onClick={() => { addToCart(dish); setDialogOpen(false); }}
+                    className="inline-flex items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-10 h-10 shrink-0"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                  </button>
+                )}
+                {swishUrl && (
+                  <a
+                    href={swishUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-sm font-bold uppercase px-6 py-2.5 hover:from-primary/90 hover:to-primary/70 transition-colors"
+                  >
+                    {buyLabel}
+                  </a>
+                )}
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </>
