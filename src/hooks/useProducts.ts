@@ -30,6 +30,9 @@ function parseIngredients(ingredients: string | null, translatedIngredients: unk
   if (Array.isArray(translatedIngredients) && translatedIngredients.length > 0) {
     return translatedIngredients.map(String);
   }
+  if (typeof translatedIngredients === 'string' && translatedIngredients.length > 0) {
+    return translatedIngredients.split(',').map(i => i.trim()).filter(Boolean);
+  }
   if (ingredients) {
     return ingredients.split(',').map(i => i.trim()).filter(Boolean);
   }
