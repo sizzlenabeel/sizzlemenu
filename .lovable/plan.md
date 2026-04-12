@@ -1,15 +1,32 @@
 
 
-## Fix Swish Cart Message Format
+## Fix: English translated ingredients not displaying
 
-### Change
-In `src/components/menu/CartBar.tsx`, update the `buildSwishUrl` function to join the first words of each item with a hyphen instead of concatenating them directly.
+### Root Cause
+The `translated_ingredients` column in the database is `jsonb`, but the data is inconsistent:
+- Some rows store a **JSON array**: `["Chicken", "Mushrooms", ...]` -- works correctly
+- Most rows store a **JSON string**: `"Chickpeas, tomato, sweet potato, ..."` -- fails the `Array.isArray()` check and falls back to Swedish
 
-**Current:** `const firstWords = items.map((i) => i.dish.name.split(/\s+/)[0]).join("");`
-**New:** `const firstWords = items.map((i) => i.dish.name.split(/\s+/)[0]).join("-");`
+### Fix
+**File: `src/hooks/useProducts.ts`** — Update `parseIngredients` to also handle the case where `translatedIngredients` is a string. When it's a string, split by comma just like the Swedish fallback.
+
+```typescript
+function parseIngredients(ingredients: string | null, translatedIngredients: unknown): string[] {
+  if (Array.isArray(translatedIngredients) && translatedIngredients.length > 0) {
+    return translatedIngredients.map(String);
+  }
+  if (typeof translatedIngredients === 'string' && translatedIngredients.length > 0) {
+    return translatedIngredients.split(',').map(i => i.trim()).filter(Boolean);
+  }
+  if (ingredients) {
+    return ingredients.split(',').map(i => i.trim()).filter(Boolean);
+  }
+  return [];
+}
+```
 
 ### Files
 | File | Change |
 |---|---|
-| `src/components/menu/CartBar.tsx` | Change `.join("")` to `.join("-")` on line 16 |
+| `src/hooks/useProducts.ts` | Add string handling to `parseIngredients` |
 
