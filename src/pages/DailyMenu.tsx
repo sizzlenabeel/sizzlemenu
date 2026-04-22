@@ -11,7 +11,12 @@ import { ContactButtons } from "@/components/menu/ContactButtons";
 import { CartBar } from "@/components/menu/CartBar";
 import { getISOWeek } from "date-fns";
 
-export default function Storytel() {
+interface DailyMenuProps {
+  locationId: string;
+  locationName: string;
+}
+
+export default function DailyMenu({ locationId, locationName }: DailyMenuProps) {
   const currentWeek = getISOWeek(new Date());
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('monday');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -21,7 +26,7 @@ export default function Storytel() {
     sortBy: 'dueDate',
   });
 
-  const { data: allDishes, isLoading, error } = useProducts();
+  const { data: allDishes, isLoading, error } = useProducts(locationId);
 
   const filteredDishes = useMemo(() => {
     if (!allDishes) return [];
@@ -50,7 +55,7 @@ export default function Storytel() {
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-4xl py-8 px-4">
-          <MenuHeader locationName="Storytel" subtitle="Daily rotating menu" viewMode={viewMode} onViewModeChange={setViewMode} />
+          <MenuHeader locationName={locationName} subtitle="Daily rotating menu" viewMode={viewMode} onViewModeChange={setViewMode} />
           <div className="text-center py-12">
             <p className="text-destructive">Failed to load menu. Please try again later.</p>
           </div>
@@ -62,7 +67,7 @@ export default function Storytel() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl py-8 px-4">
-        <MenuHeader locationName="Storytel" subtitle="Daily rotating menu" viewMode={viewMode} onViewModeChange={setViewMode} />
+        <MenuHeader locationName={locationName} subtitle="Daily rotating menu" viewMode={viewMode} onViewModeChange={setViewMode} />
 
         <div className="mb-4">
           <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
@@ -80,7 +85,7 @@ export default function Storytel() {
             ))
           ) : filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
-              <DishCard key={dish.id} dish={dish} showPrice={dish.category === 'snacks'} showBuyButton={dish.category === 'snacks'} locationName="Storytel" viewMode={viewMode} />
+              <DishCard key={dish.id} dish={dish} showPrice={dish.category === 'snacks'} showBuyButton={dish.category === 'snacks'} locationName={locationName} viewMode={viewMode} />
             ))
           ) : (
             <EmptyState message={filters.category === 'snacks' ? 'No snacks available' : `No ${filters.category} available for ${selectedDay}`} />
@@ -88,7 +93,7 @@ export default function Storytel() {
         </div>
 
         <ContactButtons />
-        <CartBar locationName="Storytel" />
+        <CartBar locationName={locationName} />
       </div>
     </div>
   );

@@ -3,6 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Dish, DayOfWeek } from '@/types/menu';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+interface AllocationProductRow {
+  product: ProductRow | ProductRow[] | null;
+}
+
 interface ProductRow {
   id: string;
   name: string | null;
@@ -46,47 +50,101 @@ function parseDayOfWeek(day: string | null): DayOfWeek | undefined {
   return validDays.includes(normalized as DayOfWeek) ? (normalized as DayOfWeek) : undefined;
 }
 
-export function useProducts() {
+function extractProduct(row: AllocationProductRow): ProductRow | null {
+  if (!row.product) return null;
+  return Array.isArray(row.product) ? row.product[0] ?? null : row.product;
+}
+
+function dedupeProducts(products: ProductRow[]) {
+  return Array.from(new Map(products.map((product) => [product.id, product])).values());
+}
+
+async function fetchAllProducts() {
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      id,
+      name,
+      translated_name,
+      description,
+      translated_description,
+      ingredients,
+      translated_ingredients,
+      allergens,
+      translated_allergens,
+      consumption_guidelines,
+      translated_consumption_guidelines,
+      price,
+      due_date,
+      is_vegan,
+      is_snack,
+      is_for_storytel,
+      is_only_for_storytel,
+      delivery_day,
+      week_number,
+      sizzle_deliveryday
+    `);
+
+  if (error) throw error;
+
+  return (data || []) as ProductRow[];
+}
+
+export function useProducts(locationId?: string) {
   const { language } = useLanguage();
 
   return useQuery({
-    queryKey: ['products', language],
+    queryKey: ['products', locationId, language],
+    enabled: Boolean(locationId),
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('products')
+        .from('allocations')
         .select(`
-          id,
-          name,
-          translated_name,
-          description,
-          translated_description,
-          ingredients,
-          translated_ingredients,
-          allergens,
-          translated_allergens,
-          consumption_guidelines,
-          translated_consumption_guidelines,
-          price,
-          due_date,
-          is_vegan,
-          is_snack,
-          is_for_storytel,
-          is_only_for_storytel,
-          delivery_day,
-          week_number,
-          sizzle_deliveryday
-        `);
+          product:products(
+            id,
+            name,
+            translated_name,
+            description,
+            translated_description,
+            ingredients,
+            translated_ingredients,
+            allergens,
+            translated_allergens,
+            consumption_guidelines,
+            translated_consumption_guidelines,
+            price,
+            due_date,
+            is_vegan,
+            is_snack,
+            is_for_storytel,
+            is_only_for_storytel,
+            delivery_day,
+            week_number,
+            sizzle_deliveryday
+          )
+        `)
+        .eq("location_id", locationId);
 
       if (error) throw error;
 
-      const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = (data || []).map((row: ProductRow) => {
+      const allocatedProducts = dedupeProducts(
+        (data || [])
+          .map(extractProduct)
+          .filter((row): row is ProductRow => row !== null)
+      );
+
+      const products = allocatedProducts.length > 0
+        ? allocatedProducts
+        : await fetchAllProducts();
+
+      const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
         const isEnglish = language === 'en';
 
         return {
           id: row.id,
           name: (isEnglish ? row.translated_name : row.name) || row.name || 'Unknown',
           description: (isEnglish ? row.translated_description : row.description) || row.description || '',
-          ingredients: isEnglish 
+          ingredients: isEnglish
             ? parseIngredients(row.ingredients, row.translated_ingredients)
             : parseIngredients(row.ingredients, null),
           allergens: (isEnglish ? row.translated_allergens : row.allergens) || row.allergens || '',

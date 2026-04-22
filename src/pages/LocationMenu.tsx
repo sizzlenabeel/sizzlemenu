@@ -12,6 +12,7 @@ import { getISOWeek } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LocationMenuProps {
+  locationId: string;
   locationName: string;
 }
 
@@ -23,7 +24,7 @@ function getTodayDayIndex(): number {
   return jsDay - 1; // Mon=0, Tue=1, ...Fri=4
 }
 
-export default function LocationMenu({ locationName }: LocationMenuProps) {
+export default function LocationMenu({ locationId, locationName }: LocationMenuProps) {
   const currentWeek = getISOWeek(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filters, setFilters] = useState<MenuFilters>({
@@ -34,7 +35,7 @@ export default function LocationMenu({ locationName }: LocationMenuProps) {
   const { language } = useLanguage();
   const isSwedish = language === 'sv';
 
-  const { data: allDishes, isLoading, error } = useProducts();
+  const { data: allDishes, isLoading, error } = useProducts(locationId);
 
   const { available, upcoming } = useMemo(() => {
     if (!allDishes) return { available: [], upcoming: [] };
