@@ -13,7 +13,12 @@ interface CartBarProps {
 
 function buildSwishUrl(locationName: string, items: { dish: Dish; quantity: number }[]) {
   const total = items.reduce((sum, i) => sum + i.dish.price * i.quantity, 0);
-  const productIds = items.map((i) => i.dish.numericId ?? i.dish.name.slice(0, 10)).join(",");
+  const productIds = items
+    .map((i) => {
+      const productId = i.dish.numericId ?? i.dish.name.slice(0, 10);
+      return i.quantity > 1 ? `${i.quantity}x${productId}` : String(productId);
+    })
+    .join(",");
   const msg = `${locationName}: ${productIds}`.substring(0, 50);
   return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${total}&cur=SEK&msg=${msg}&edit=amt,msg&src=qr`;
 }
