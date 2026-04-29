@@ -3,9 +3,29 @@ import NotFound from "./NotFound";
 import DailyMenu from "./DailyMenu";
 import LocationMenu from "./LocationMenu";
 import { useLocation } from "@/hooks/useLocation";
+import { DayOfWeek } from "@/types/menu";
 
 function usesDailyMenu(locationName: string) {
   return locationName.toLowerCase() === "storytel";
+}
+
+function getStorytelInitialDay(date = new Date()): DayOfWeek {
+  const day = date.getDay();
+
+  switch (day) {
+    case 1:
+      return "monday";
+    case 2:
+      return "tuesday";
+    case 3:
+      return "wednesday";
+    case 4:
+      return "thursday";
+    case 5:
+      return "friday";
+    default:
+      return "friday";
+  }
 }
 
 export default function LocationPage() {
@@ -27,7 +47,14 @@ export default function LocationPage() {
   }
 
   if (usesDailyMenu(location.name)) {
-    return <DailyMenu locationId={location.id} locationName={location.name} />;
+    return (
+      <DailyMenu
+        locationId={location.id}
+        locationName={location.name}
+        initialCategory="snacks"
+        initialSelectedDay={getStorytelInitialDay()}
+      />
+    );
   }
 
   return <LocationMenu locationId={location.id} locationName={location.name} />;

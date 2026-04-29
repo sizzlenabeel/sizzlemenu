@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { DayOfWeek, MenuFilters, ViewMode } from "@/types/menu";
+import { Category, DayOfWeek, MenuFilters, ViewMode } from "@/types/menu";
 import { MenuHeader } from "@/components/menu/MenuHeader";
 import { DayTabs } from "@/components/menu/DayTabs";
 import { FilterBar } from "@/components/menu/FilterBar";
@@ -14,14 +14,21 @@ import { getISOWeek } from "date-fns";
 interface DailyMenuProps {
   locationId: string;
   locationName: string;
+  initialCategory?: Category;
+  initialSelectedDay?: DayOfWeek;
 }
 
-export default function DailyMenu({ locationId, locationName }: DailyMenuProps) {
+export default function DailyMenu({
+  locationId,
+  locationName,
+  initialCategory = 'food',
+  initialSelectedDay = 'monday',
+}: DailyMenuProps) {
   const currentWeek = getISOWeek(new Date());
-  const [selectedDay, setSelectedDay] = useState<DayOfWeek>('monday');
+  const [selectedDay, setSelectedDay] = useState<DayOfWeek>(initialSelectedDay);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filters, setFilters] = useState<MenuFilters>({
-    category: 'food',
+    category: initialCategory,
     veganOnly: false,
     sortBy: 'dueDate',
   });
