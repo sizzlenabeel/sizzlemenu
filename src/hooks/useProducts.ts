@@ -9,6 +9,7 @@ interface AllocationProductRow {
 
 interface ProductRow {
   id: string;
+  numeric_id: number;
   name: string | null;
   translated_name: string | null;
   description: string | null;
@@ -64,6 +65,7 @@ async function fetchAllProducts() {
     .from('products')
     .select(`
       id,
+      numeric_id,
       name,
       translated_name,
       description,
@@ -102,6 +104,7 @@ export function useProducts(locationId?: string) {
         .select(`
           product:products(
             id,
+            numeric_id,
             name,
             translated_name,
             description,
@@ -142,6 +145,7 @@ export function useProducts(locationId?: string) {
 
         return {
           id: row.id,
+          numericId: row.numeric_id,
           name: (isEnglish ? row.translated_name : row.name) || row.name || 'Unknown',
           description: (isEnglish ? row.translated_description : row.description) || row.description || '',
           ingredients: isEnglish

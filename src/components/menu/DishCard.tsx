@@ -31,10 +31,11 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
   const buyLabel = isSwedish ? 'KÖP NU' : 'BUY NOW';
   const upcomingLabel = isSwedish ? 'Kommande' : 'Upcoming';
   const formattedDate = format(dish.dueDate, 'd MMM', { locale: isSwedish ? sv : undefined });
+  const swishProductId = dish.numericId ?? dish.name.slice(0, 10);
 
   const swishUrl = showBuyButton && locationName && !upcoming
     ? (() => {
-        const msg = `${locationName}-${dish.name}`.replace(/\s+/g, '').substring(0, 50);
+        const msg = `${locationName}: ${swishProductId}`.substring(0, 50);
         return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${dish.price}&cur=SEK&msg=${msg}&edit=amt,msg&src=qr`;
       })()
     : null;

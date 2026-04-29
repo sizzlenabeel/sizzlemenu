@@ -10,6 +10,7 @@ export type ViewMode = 'list' | 'tile';
 
 export interface Dish {
   id: string;
+  numericId: number;
   name: string;
   description: string;
   ingredients: string[];
