@@ -68,7 +68,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
             {/* Image with price overlay */}
             <div className="relative aspect-[4/3] bg-muted flex items-center justify-center">
               {dish.imageUrl ? (
-                <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
+                <img src={dish.imageUrl} alt={dish.name} loading="lazy" className="w-full h-full object-cover" />
               ) : (
                 <ImageIcon className="h-12 w-12 text-muted-foreground/40" />
               )}
