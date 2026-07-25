@@ -1,80 +1,67 @@
+## Goal
 
+Let you paste an image URL into any product row (from Cloudinary, your own site, or anywhere else) and have it show up in the menu — without using Supabase storage.
 
-## Plan: Netlify Configuration for Reliable Deployment
+## Changes
 
-### Goal
-Add Netlify configuration files so deep links (`/sizzle`, `/storytel`, etc.) work, builds are reproducible, and security/caching headers follow current best practices.
+### 1. Database — add one column
 
-### Background
-Netlify is a static host. For a Vite + React Router SPA it needs three things:
-1. A build command + publish directory it can rely on
-2. A SPA fallback so unknown paths serve `index.html`
-3. Sensible cache headers so hashed JS/CSS are cached long-term and `index.html` is always fresh
+Migration on `products`:
 
-The cleanest current practice (2024-2025) is to put everything in a single `netlify.toml` at the repo root rather than scattering `_redirects` and `_headers`. `netlify.toml` is version-controlled, overrides UI settings, and is the approach Netlify documents first.
+- Add `image_url TEXT` (nullable). Nothing else changes; no new table, no RLS change (existing `products_public_select` already covers reads).
 
-We'll also keep a minimal `public/_redirects` as a safety net — it gets copied into `dist/` automatically and guarantees SPA fallback even if `netlify.toml` is ever misread.
+That's the entire backend footprint. Storing a ~100-char URL per product costs bytes, not megabytes.
 
-### Files to add
+### 2. Types
 
-| File | Purpose |
-|---|---|
-| `netlify.toml` (root) | Build command, publish dir, Node version, SPA redirect, cache + security headers |
-| `public/_redirects` | Backup SPA fallback (already created earlier — will be kept) |
+`src/hooks/useProducts.ts`:
 
-### `netlify.toml` contents
+- Add `image_url: string | null` to `ProductRow` and to the select list in both `fetchAllProducts()` and the allocations query.
+- Map it into the returned dish as `imageUrl: row.image_url ?? undefined` (the `Dish` type already has an optional `imageUrl` field from an earlier change).
 
-```toml
-[build]
-  command = "npm run build"
-  publish = "dist"
+### 3. Rendering
 
-[build.environment]
-  NODE_VERSION = "20"
+`src/components/menu/DishCard.tsx`:
 
-# SPA fallback — every unknown path serves index.html so React Router takes over
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+- **Tile view**: the existing image slot already exists — swap the placeholder for `<img src={dish.imageUrl} />` when present; keep the current placeholder illustration when it's `null`. Use `loading="lazy"` and `object-cover` so any aspect ratio looks right in the `aspect-[4/3]` frame.
+- **List view**: no image today, and you didn't ask for one — leave it alone.
+- No layout changes, no new toggle, no other files touched.
 
-# Long-term cache for hashed Vite assets
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+### 4. How you add images going forward
 
-# Never cache index.html so users always get the latest app shell
-[[headers]]
-  for = "/index.html"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+No admin UI (per your answer). Two ways to set a URL on a product:
 
-# Baseline security headers
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "SAMEORIGIN"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+- **Supabase dashboard** → `products` table → paste URL into `image_url` → save.
+- Or send me the URL + product name in chat and I'll run an update for you.
+
+Any HTTPS URL works — Cloudinary, imgix, your own domain, GitHub raw, etc. If Cloudinary: use the `f_auto,q_auto,w_800` transform in the URL for auto-WebP + resize, e.g. `https://res.cloudinary.com/<cloud>/image/upload/f_auto,q_auto,w_800/dish.jpg`.
+
+## Out of scope
+
+- Location images, chef images, in-app upload form — you said products only.
+- Supabase Storage bucket — deliberately avoided to preserve your quota.
+- Migrating existing repo chef images to the CDN — separate task if you want it.
+
+## Technical details
+
+Migration:
+
+```sql
+ALTER TABLE public.products
+  ADD COLUMN IF NOT EXISTS image_url TEXT;
 ```
 
-### Netlify dashboard settings
-Once `netlify.toml` is committed, Netlify will pick up build command, publish dir, and Node version automatically. You can leave the UI fields blank or matching:
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Node version: `20`
+DishCard tile image slot (shape only):
 
-### What this fixes / improves
-- `/sizzle`, `/storytel`, `/embark`, `/tobii`, `/ahouse`, `/king`, `/nordnet` will load directly and survive page refresh
-- Repeat visits are faster (hashed assets cached for a year)
-- Users always get the newest deploy because `index.html` is never cached
-- Basic clickjacking / MIME-sniffing protections in place
-- Build is pinned to Node 20 so deploys are reproducible
-
-### Notes
-- No code changes to the React app are needed.
-- This config only affects Netlify. Lovable's own hosting ignores these files and handles SPA routing on its own, so nothing breaks there.
-- `lovable-tagger` stays as-is (dev-only, not in the production bundle).
-
+```tsx
+{dish.imageUrl ? (
+  <img
+    src={dish.imageUrl}
+    alt={dish.name}
+    loading="lazy"
+    className="w-full h-full object-cover"
+  />
+) : (
+  /* existing placeholder */
+)}
+```
