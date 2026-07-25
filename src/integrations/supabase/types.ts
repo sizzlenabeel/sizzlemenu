@@ -149,6 +149,7 @@ export type Database = {
           due_date: string | null
           font_size: string | null
           id: string
+          image_url: string | null
           ingredients: string | null
           is_for_storytel: boolean | null
           is_only_for_storytel: boolean | null
@@ -175,6 +176,7 @@ export type Database = {
           due_date?: string | null
           font_size?: string | null
           id: string
+          image_url?: string | null
           ingredients?: string | null
           is_for_storytel?: boolean | null
           is_only_for_storytel?: boolean | null
@@ -201,6 +203,7 @@ export type Database = {
           due_date?: string | null
           font_size?: string | null
           id?: string
+          image_url?: string | null
           ingredients?: string | null
           is_for_storytel?: boolean | null
           is_only_for_storytel?: boolean | null
