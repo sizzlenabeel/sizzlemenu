@@ -85,7 +85,8 @@ async function fetchAllProducts() {
       is_only_for_storytel,
       delivery_day,
       week_number,
-      sizzle_deliveryday
+      sizzle_deliveryday,
+      image_url
     `);
 
   if (error) throw error;
