@@ -15,7 +15,7 @@ interface ProductRow {
   description: string | null;
   translated_description: string | null;
   ingredients: string | null;
-  translated_ingredients: string[] | null;
+  translated_ingredients: unknown;
   allergens: string | null;
   translated_allergens: string | null;
   consumption_guidelines: string | null;
@@ -29,6 +29,7 @@ interface ProductRow {
   delivery_day: string | null;
   week_number: number | null;
   sizzle_deliveryday: string | null;
+  image_url: string | null;
 }
 
 function parseIngredients(ingredients: string | null, translatedIngredients: unknown): string[] {
@@ -84,7 +85,8 @@ async function fetchAllProducts() {
       is_only_for_storytel,
       delivery_day,
       week_number,
-      sizzle_deliveryday
+      sizzle_deliveryday,
+      image_url
     `);
 
   if (error) throw error;
@@ -123,7 +125,8 @@ export function useProducts(locationId?: string) {
             is_only_for_storytel,
             delivery_day,
             week_number,
-            sizzle_deliveryday
+            sizzle_deliveryday,
+            image_url
           )
         `)
         .eq("location_id", locationId);
@@ -162,6 +165,7 @@ export function useProducts(locationId?: string) {
           isOnlyForStorytel: row.is_only_for_storytel || false,
           weekNumber: row.week_number ?? undefined,
           sizzleDeliveryDay: parseDayOfWeek(row.sizzle_deliveryday),
+          imageUrl: row.image_url ?? undefined,
         };
       });
 
