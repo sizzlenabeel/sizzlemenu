@@ -15,7 +15,7 @@ interface ProductRow {
   description: string | null;
   translated_description: string | null;
   ingredients: string | null;
-  translated_ingredients: string[] | null;
+  translated_ingredients: unknown;
   allergens: string | null;
   translated_allergens: string | null;
   consumption_guidelines: string | null;
@@ -29,6 +29,7 @@ interface ProductRow {
   delivery_day: string | null;
   week_number: number | null;
   sizzle_deliveryday: string | null;
+  image_url: string | null;
 }
 
 function parseIngredients(ingredients: string | null, translatedIngredients: unknown): string[] {
