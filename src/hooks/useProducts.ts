@@ -22,6 +22,7 @@ interface ProductRow {
   translated_consumption_guidelines: string | null;
   price: number | null;
   due_date: string | null;
+  show_duedate: boolean | null;
   is_vegan: boolean | null;
   is_snack: boolean | null;
   is_for_storytel: boolean | null;
@@ -79,6 +80,7 @@ async function fetchAllProducts() {
       translated_consumption_guidelines,
       price,
       due_date,
+      show_duedate,
       is_vegan,
       is_snack,
       is_for_storytel,
@@ -119,6 +121,7 @@ export function useProducts(locationId?: string) {
             translated_consumption_guidelines,
             price,
             due_date,
+            show_duedate,
             is_vegan,
             is_snack,
             is_for_storytel,
@@ -158,6 +161,7 @@ export function useProducts(locationId?: string) {
           consumptionGuidelines: (isEnglish ? row.translated_consumption_guidelines : row.consumption_guidelines) || row.consumption_guidelines || '',
           price: row.price || 0,
           dueDate: row.due_date ? new Date(row.due_date) : new Date(),
+          showDueDate: row.show_duedate === true,
           category: row.is_snack ? 'snacks' : 'food',
           isVegan: row.is_vegan || false,
           day: parseDayOfWeek(row.delivery_day),

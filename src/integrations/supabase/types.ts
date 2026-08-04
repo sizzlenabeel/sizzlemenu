@@ -158,6 +158,7 @@ export type Database = {
           name: string | null
           numeric_id: number
           price: number | null
+          show_duedate: boolean | null
           sizzle_deliveryday: string | null
           translated_allergens: string | null
           translated_consumption_guidelines: string | null
@@ -185,6 +186,7 @@ export type Database = {
           name?: string | null
           numeric_id?: number
           price?: number | null
+          show_duedate?: boolean | null
           sizzle_deliveryday?: string | null
           translated_allergens?: string | null
           translated_consumption_guidelines?: string | null
@@ -212,6 +214,7 @@ export type Database = {
           name?: string | null
           numeric_id?: number
           price?: number | null
+          show_duedate?: boolean | null
           sizzle_deliveryday?: string | null
           translated_allergens?: string | null
           translated_consumption_guidelines?: string | null

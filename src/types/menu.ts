@@ -18,6 +18,7 @@ export interface Dish {
   consumptionGuidelines: string;
   price: number;
   dueDate: Date;
+  showDueDate?: boolean;
   category: Category;
   isVegan: boolean;
   day?: DayOfWeek;

@@ -31,6 +31,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
   const buyLabel = isSwedish ? 'KÖP NU' : 'BUY NOW';
   const upcomingLabel = isSwedish ? 'Kommande' : 'Upcoming';
   const formattedDate = format(dish.dueDate, 'd MMM', { locale: isSwedish ? sv : undefined });
+  const shouldShowDueDate = dish.category !== 'snacks' || dish.showDueDate === true;
   const swishProductId = dish.numericId ?? dish.name.slice(0, 10);
 
   const swishUrl = showBuyButton && locationName && !upcoming
@@ -59,16 +60,21 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
       <>
         <Card
           className={cn(
-            "overflow-hidden transition-all duration-200 hover:shadow-lg animate-fade-in flex flex-col",
+            "h-full overflow-hidden transition-all duration-200 hover:shadow-lg animate-fade-in flex flex-col",
             upcoming && "opacity-50"
           )}
           onClick={() => setDialogOpen(true)}
         >
           <div className="cursor-pointer select-none flex flex-col h-full">
             {/* Image with price overlay */}
-            <div className="relative aspect-[4/3] bg-muted flex items-center justify-center">
+            <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-card flex items-center justify-center">
               {dish.imageUrl ? (
-                <img src={dish.imageUrl} alt={dish.name} loading="lazy" className="w-full h-full object-cover" />
+                <img
+                  src={dish.imageUrl}
+                  alt={dish.name}
+                  loading="lazy"
+                  className="absolute inset-0 block h-full w-full max-w-none object-contain"
+                />
               ) : (
                 <ImageIcon className="h-12 w-12 text-muted-foreground/40" />
               )}
@@ -98,10 +104,12 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                 <span className="text-xs text-muted-foreground italic line-clamp-2">⚠ {dish.allergens}</span>
               )}
 
-              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {bestBeforeLabel}: {formattedDate}
-              </div>
+              {shouldShowDueDate && (
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {bestBeforeLabel}: {formattedDate}
+                </div>
+              )}
 
               {/* Buttons pinned to bottom */}
               {!upcoming && (showBuyButton || swishUrl) && (
@@ -153,10 +161,12 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                   </Badge>
                 )}
               </div>
-              <div className="text-xs text-muted-foreground flex items-center gap-1 mb-4">
-                <Calendar className="h-3 w-3" />
-                {bestBeforeLabel}: {formattedDate}
-              </div>
+              {shouldShowDueDate && (
+                <div className="text-xs text-muted-foreground flex items-center gap-1 mb-4">
+                  <Calendar className="h-3 w-3" />
+                  {bestBeforeLabel}: {formattedDate}
+                </div>
+              )}
               <DishDetails dish={dish} isSwedish={isSwedish} />
             </div>
             {/* Sticky bottom buttons */}
@@ -201,13 +211,15 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
               {badges}
               <h3 className="font-bold text-xl leading-tight">{dish.name}</h3>
               <div className="flex flex-wrap items-start gap-x-6 gap-y-1">
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{bestBeforeLabel}</span>
-                  <span className="text-sm font-semibold flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                    {formattedDate}
-                  </span>
-                </div>
+                {shouldShowDueDate && (
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{bestBeforeLabel}</span>
+                    <span className="text-sm font-semibold flex items-center gap-1">
+                      <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                      {formattedDate}
+                    </span>
+                  </div>
+                )}
                 {dish.allergens && (
                   <div className="flex flex-col">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
