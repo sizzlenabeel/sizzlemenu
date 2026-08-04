@@ -21,16 +21,16 @@ interface DailyMenuProps {
 export default function DailyMenu({
   locationId,
   locationName,
-  initialCategory = 'food',
-  initialSelectedDay = 'monday',
+  initialCategory = "food",
+  initialSelectedDay = "monday",
 }: DailyMenuProps) {
   const currentWeek = getISOWeek(new Date());
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>(initialSelectedDay);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>("tile");
   const [filters, setFilters] = useState<MenuFilters>({
     category: initialCategory,
     veganOnly: false,
-    sortBy: 'dueDate',
+    sortBy: "dueDate",
   });
 
   const { data: allDishes, isLoading, error } = useProducts(locationId);
@@ -40,18 +40,18 @@ export default function DailyMenu({
 
     const now = new Date();
 
-    let result = allDishes.filter((dish) => {
+    const result = allDishes.filter((dish) => {
       if (!dish.isForStorytel && !dish.isOnlyForStorytel) return false;
       if (dish.dueDate < now) return false;
       if (dish.category !== filters.category) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
       if (dish.weekNumber !== currentWeek) return false;
-      if (dish.category === 'food' && dish.day !== selectedDay) return false;
+      if (dish.category === "food" && dish.day !== selectedDay) return false;
       return true;
     });
 
     result.sort((a, b) => {
-      if (filters.sortBy === 'price') return a.price - b.price;
+      if (filters.sortBy === "price") return a.price - b.price;
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
 
@@ -62,9 +62,16 @@ export default function DailyMenu({
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-4xl py-8 px-4">
-          <MenuHeader locationName={locationName} subtitle="Daily rotating menu" viewMode={viewMode} onViewModeChange={setViewMode} />
+          <MenuHeader
+            locationName={locationName}
+            subtitle="Daily rotating menu"
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
           <div className="text-center py-12">
-            <p className="text-destructive">Failed to load menu. Please try again later.</p>
+            <p className="text-destructive">
+              Failed to load menu. Please try again later.
+            </p>
           </div>
         </div>
       </div>
@@ -74,28 +81,49 @@ export default function DailyMenu({
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl py-8 px-4">
-        <MenuHeader locationName={locationName} subtitle="Daily rotating menu" viewMode={viewMode} onViewModeChange={setViewMode} />
+        <MenuHeader
+          locationName={locationName}
+          subtitle="Daily rotating menu"
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
 
         <div className="mb-4">
           <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
         </div>
 
-        <FilterBar
-          filters={filters}
-          onFiltersChange={setFilters}
-        />
+        <FilterBar filters={filters} onFiltersChange={setFilters} />
 
-        <div className={viewMode === 'tile' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-4'}>
+        <div
+          className={
+            viewMode === "tile"
+              ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              : "space-y-4"
+          }
+        >
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-24 w-full" />
             ))
           ) : filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
-              <DishCard key={dish.id} dish={dish} showPrice={dish.category === 'snacks'} showBuyButton={dish.category === 'snacks'} locationName={locationName} viewMode={viewMode} />
+              <DishCard
+                key={dish.id}
+                dish={dish}
+                showPrice={dish.category === "snacks"}
+                showBuyButton={dish.category === "snacks"}
+                locationName={locationName}
+                viewMode={viewMode}
+              />
             ))
           ) : (
-            <EmptyState message={filters.category === 'snacks' ? 'No snacks available' : `No ${filters.category} available for ${selectedDay}`} />
+            <EmptyState
+              message={
+                filters.category === "snacks"
+                  ? "No snacks available"
+                  : `No ${filters.category} available for ${selectedDay}`
+              }
+            />
           )}
         </div>
 

@@ -16,7 +16,13 @@ interface LocationMenuProps {
   locationName: string;
 }
 
-const DAY_ORDER: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const DAY_ORDER: DayOfWeek[] = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+];
 
 function getTodayDayIndex(): number {
   const jsDay = new Date().getDay(); // 0=Sun, 1=Mon...6=Sat
@@ -24,16 +30,19 @@ function getTodayDayIndex(): number {
   return jsDay - 1; // Mon=0, Tue=1, ...Fri=4
 }
 
-export default function LocationMenu({ locationId, locationName }: LocationMenuProps) {
+export default function LocationMenu({
+  locationId,
+  locationName,
+}: LocationMenuProps) {
   const currentWeek = getISOWeek(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>("tile");
   const [filters, setFilters] = useState<MenuFilters>({
-    category: 'food',
+    category: "food",
     veganOnly: false,
-    sortBy: 'dueDate',
+    sortBy: "dueDate",
   });
   const { language } = useLanguage();
-  const isSwedish = language === 'sv';
+  const isSwedish = language === "sv";
 
   const { data: allDishes, isLoading, error } = useProducts(locationId);
 
@@ -67,15 +76,19 @@ export default function LocationMenu({ locationId, locationName }: LocationMenuP
       }
     }
 
-    const sortFn = (a: typeof filtered[0], b: typeof filtered[0]) => {
-      if (filters.sortBy === 'price') return a.price - b.price;
+    const sortFn = (a: (typeof filtered)[0], b: (typeof filtered)[0]) => {
+      if (filters.sortBy === "price") return a.price - b.price;
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     };
 
     availableItems.sort(sortFn);
     upcomingItems.sort((a, b) => {
-      const aIdx = a.sizzleDeliveryDay ? DAY_ORDER.indexOf(a.sizzleDeliveryDay) : 99;
-      const bIdx = b.sizzleDeliveryDay ? DAY_ORDER.indexOf(b.sizzleDeliveryDay) : 99;
+      const aIdx = a.sizzleDeliveryDay
+        ? DAY_ORDER.indexOf(a.sizzleDeliveryDay)
+        : 99;
+      const bIdx = b.sizzleDeliveryDay
+        ? DAY_ORDER.indexOf(b.sizzleDeliveryDay)
+        : 99;
       return aIdx - bIdx;
     });
 
@@ -86,9 +99,16 @@ export default function LocationMenu({ locationId, locationName }: LocationMenuP
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-4xl py-8 px-4">
-          <MenuHeader locationName={locationName} subtitle="Weekly menu" viewMode={viewMode} onViewModeChange={setViewMode} />
+          <MenuHeader
+            locationName={locationName}
+            subtitle="Weekly menu"
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
           <div className="text-center py-12">
-            <p className="text-destructive">Failed to load menu. Please try again later.</p>
+            <p className="text-destructive">
+              Failed to load menu. Please try again later.
+            </p>
           </div>
         </div>
       </div>
@@ -98,21 +118,35 @@ export default function LocationMenu({ locationId, locationName }: LocationMenuP
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl py-8 px-4">
-        <MenuHeader locationName={locationName} subtitle="Weekly menu" viewMode={viewMode} onViewModeChange={setViewMode} />
-
-        <FilterBar
-          filters={filters}
-          onFiltersChange={setFilters}
+        <MenuHeader
+          locationName={locationName}
+          subtitle="Weekly menu"
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
 
-        <div className={viewMode === 'tile' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-4'}>
+        <FilterBar filters={filters} onFiltersChange={setFilters} />
+
+        <div
+          className={
+            viewMode === "tile"
+              ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              : "space-y-4"
+          }
+        >
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-24 w-full" />
             ))
           ) : available.length > 0 ? (
             available.map((dish) => (
-              <DishCard key={dish.id} dish={dish} showBuyButton locationName={locationName} viewMode={viewMode} />
+              <DishCard
+                key={dish.id}
+                dish={dish}
+                showBuyButton
+                locationName={locationName}
+                viewMode={viewMode}
+              />
             ))
           ) : (
             <EmptyState message={`No ${filters.category} available`} />
@@ -122,11 +156,24 @@ export default function LocationMenu({ locationId, locationName }: LocationMenuP
         {!isLoading && upcoming.length > 0 && (
           <div className="mt-8">
             <h2 className="text-lg font-semibold text-muted-foreground mb-4">
-              {isSwedish ? 'Kommande leveranser' : 'Upcoming Deliveries'}
+              {isSwedish ? "Kommande leveranser" : "Upcoming Deliveries"}
             </h2>
-            <div className={viewMode === 'tile' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-4'}>
+            <div
+              className={
+                viewMode === "tile"
+                  ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                  : "space-y-4"
+              }
+            >
               {upcoming.map((dish) => (
-                <DishCard key={dish.id} dish={dish} showBuyButton locationName={locationName} viewMode={viewMode} upcoming />
+                <DishCard
+                  key={dish.id}
+                  dish={dish}
+                  showBuyButton
+                  locationName={locationName}
+                  viewMode={viewMode}
+                  upcoming
+                />
               ))}
             </div>
           </div>
