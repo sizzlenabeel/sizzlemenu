@@ -55,7 +55,7 @@ export default function LocationMenu({
     const filtered = allDishes.filter((dish) => {
       if (dish.isOnlyForStorytel) return false;
       if (dish.dueDate < now) return false;
-      if (dish.category !== filters.category) return false;
+      if (!dish.categories.includes(filters.category)) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
       if (dish.weekNumber !== currentWeek) return false;
       return true;

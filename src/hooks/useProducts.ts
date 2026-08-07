@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Dish, DayOfWeek } from '@/types/menu';
+import { Dish, DayOfWeek, ProductType, Category } from '@/types/menu';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AllocationProductRow {
@@ -25,6 +25,7 @@ interface ProductRow {
   show_duedate: boolean | null;
   is_vegan: boolean | null;
   is_snack: boolean | null;
+  types: ProductType[] | null;
   is_for_storytel: boolean | null;
   is_only_for_storytel: boolean | null;
   delivery_day: string | null;
@@ -62,6 +63,27 @@ function dedupeProducts(products: ProductRow[]) {
   return Array.from(new Map(products.map((product) => [product.id, product])).values());
 }
 
+function getCategory(productType: ProductType): Category {
+  switch (productType) {
+    case 'SNACK':
+      return 'snacks';
+    case 'BREAKFAST':
+      return 'breakfast';
+    case 'DRINK':
+      return 'drinks';
+    case 'FOOD':
+      return 'food';
+  }
+}
+
+function getCategories(types: ProductType[] | null, isSnack: boolean | null): Category[] {
+  if (types && types.length > 0) {
+    return Array.from(new Set(types.map(getCategory)));
+  }
+
+  return [isSnack ? 'snacks' : 'food'];
+}
+
 async function fetchAllProducts() {
   const { data, error } = await supabase
     .from('products')
@@ -83,6 +105,7 @@ async function fetchAllProducts() {
       show_duedate,
       is_vegan,
       is_snack,
+      types,
       is_for_storytel,
       is_only_for_storytel,
       delivery_day,
@@ -124,6 +147,7 @@ export function useProducts(locationId?: string) {
             show_duedate,
             is_vegan,
             is_snack,
+            types,
             is_for_storytel,
             is_only_for_storytel,
             delivery_day,
@@ -148,6 +172,7 @@ export function useProducts(locationId?: string) {
 
       const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
         const isEnglish = language === 'en';
+        const categories = getCategories(row.types, row.is_snack);
 
         return {
           id: row.id,
@@ -162,7 +187,8 @@ export function useProducts(locationId?: string) {
           price: row.price || 0,
           dueDate: row.due_date ? new Date(row.due_date) : new Date(),
           showDueDate: row.show_duedate === true,
-          category: row.is_snack ? 'snacks' : 'food',
+          category: categories[0],
+          categories,
           isVegan: row.is_vegan || false,
           day: parseDayOfWeek(row.delivery_day),
           isForStorytel: row.is_for_storytel || false,

@@ -1,6 +1,8 @@
 export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
 
-export type Category = 'food' | 'snacks';
+export type ProductType = 'SNACK' | 'BREAKFAST' | 'FOOD' | 'DRINK';
+
+export type Category = 'food' | 'snacks' | 'breakfast' | 'drinks';
 
 export type SortOption = 'price' | 'dueDate';
 
@@ -20,6 +22,7 @@ export interface Dish {
   dueDate: Date;
   showDueDate?: boolean;
   category: Category;
+  categories: Category[];
   isVegan: boolean;
   day?: DayOfWeek;
   weekNumber?: number;

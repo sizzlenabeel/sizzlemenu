@@ -43,7 +43,7 @@ export default function DailyMenu({
     const result = allDishes.filter((dish) => {
       if (!dish.isForStorytel && !dish.isOnlyForStorytel) return false;
       if (dish.dueDate < now) return false;
-      if (dish.category !== filters.category) return false;
+      if (!dish.categories.includes(filters.category)) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
       if (dish.weekNumber !== currentWeek) return false;
       if (dish.category === "food" && dish.day !== selectedDay) return false;
@@ -110,8 +110,8 @@ export default function DailyMenu({
               <DishCard
                 key={dish.id}
                 dish={dish}
-                showPrice={dish.category === "snacks"}
-                showBuyButton={dish.category === "snacks"}
+                showPrice={dish.category !== "food"}
+                showBuyButton={dish.category !== "food"}
                 locationName={locationName}
                 viewMode={viewMode}
               />
@@ -119,8 +119,8 @@ export default function DailyMenu({
           ) : (
             <EmptyState
               message={
-                filters.category === "snacks"
-                  ? "No snacks available"
+                filters.category !== "food"
+                  ? `No ${filters.category} available`
                   : `No ${filters.category} available for ${selectedDay}`
               }
             />

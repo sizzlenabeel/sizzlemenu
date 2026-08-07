@@ -31,7 +31,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
   const buyLabel = isSwedish ? 'KÖP NU' : 'BUY NOW';
   const upcomingLabel = isSwedish ? 'Kommande' : 'Upcoming';
   const formattedDate = format(dish.dueDate, 'd MMM', { locale: isSwedish ? sv : undefined });
-  const shouldShowDueDate = dish.category !== 'snacks' || dish.showDueDate === true;
+  const shouldShowDueDate = dish.category === 'food' || dish.showDueDate === true;
   const swishProductId = dish.numericId ?? dish.name.slice(0, 10);
 
   const swishUrl = showBuyButton && locationName && !upcoming
