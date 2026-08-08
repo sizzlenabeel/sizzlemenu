@@ -5,12 +5,21 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+const consentAwareStorage = {
+  getItem: (key: string) =>
+    localStorage.getItem('cookie-consent') === 'accepted' ? localStorage.getItem(key) : null,
+  setItem: (key: string, value: string) => {
+    if (localStorage.getItem('cookie-consent') === 'accepted') localStorage.setItem(key, value);
+  },
+  removeItem: (key: string) => localStorage.removeItem(key),
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: consentAwareStorage,
     persistSession: true,
     autoRefreshToken: true,
   }

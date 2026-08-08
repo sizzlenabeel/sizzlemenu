@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dish, DayOfWeek, ProductType, Category } from '@/types/menu';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { createQuerySignal } from '@/lib/queryTimeout';
 
 interface AllocationProductRow {
   product: ProductRow | ProductRow[] | null;
@@ -84,7 +85,7 @@ function getCategories(types: ProductType[] | null, isSnack: boolean | null): Ca
   return [isSnack ? 'snacks' : 'food'];
 }
 
-async function fetchAllProducts() {
+async function fetchAllProducts(signal: AbortSignal) {
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -112,7 +113,8 @@ async function fetchAllProducts() {
       week_number,
       sizzle_deliveryday,
       image_url
-    `);
+    `)
+    .abortSignal(signal);
 
   if (error) throw error;
 
@@ -125,10 +127,14 @@ export function useProducts(locationId?: string) {
   return useQuery({
     queryKey: ['products', locationId, language],
     enabled: Boolean(locationId),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('allocations')
-        .select(`
+    retry: 1,
+    queryFn: async ({ signal: parentSignal }) => {
+      const { signal, cleanup } = createQuerySignal(parentSignal);
+
+      try {
+        const { data, error } = await supabase
+          .from('allocations')
+          .select(`
           product:products(
             id,
             numeric_id,
@@ -155,10 +161,11 @@ export function useProducts(locationId?: string) {
             sizzle_deliveryday,
             image_url
           )
-        `)
-        .eq("location_id", locationId);
+          `)
+          .eq("location_id", locationId)
+          .abortSignal(signal);
 
-      if (error) throw error;
+        if (error) throw error;
 
       const allocatedProducts = dedupeProducts(
         (data || [])
@@ -168,7 +175,7 @@ export function useProducts(locationId?: string) {
 
       const products = allocatedProducts.length > 0
         ? allocatedProducts
-        : await fetchAllProducts();
+        : await fetchAllProducts(signal);
 
       const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
         const isEnglish = language === 'en';
@@ -199,7 +206,10 @@ export function useProducts(locationId?: string) {
         };
       });
 
-      return dishes;
+        return dishes;
+      } finally {
+        cleanup();
+      }
     },
   });
 }

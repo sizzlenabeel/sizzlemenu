@@ -4,6 +4,7 @@ import DailyMenu from "./DailyMenu";
 import LocationMenu from "./LocationMenu";
 import { useLocation } from "@/hooks/useLocation";
 import { DayOfWeek } from "@/types/menu";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function usesDailyMenu(locationName: string) {
   return locationName.toLowerCase() === "storytel";
@@ -30,19 +31,36 @@ function getStorytelInitialDay(date = new Date()): DayOfWeek {
 
 export default function LocationPage() {
   const { dynamoId } = useParams();
+  const { language } = useLanguage();
   const { data: location, isLoading, error } = useLocation(dynamoId);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-4xl py-8 px-4">
-          <p className="text-muted-foreground">Loading menu...</p>
+          <p className="text-muted-foreground">
+            {language === "sv" ? "Laddar menyn..." : "Loading menu..."}
+          </p>
         </div>
       </div>
     );
   }
 
-  if (error || !location || !dynamoId) {
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container max-w-4xl px-4 py-8">
+          <p className="text-destructive">
+            {language === "sv"
+              ? "Menyn kunde inte laddas. Försök igen om en stund."
+              : "The menu couldn't be loaded. Please try again shortly."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!location || !dynamoId) {
     return <NotFound />;
   }
 
