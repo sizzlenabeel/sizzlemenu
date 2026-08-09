@@ -1,4 +1,4 @@
-# Sizzle Menu
+# Sizzle Fridge
 
 A digital menu application for Sizzle, built with React, TypeScript, Vite, and Tailwind CSS.
 
