@@ -155,11 +155,13 @@ export type Database = {
           is_only_for_storytel: boolean | null
           is_snack: boolean | null
           is_vegan: boolean | null
+          is_vegetarian: boolean
           name: string | null
           numeric_id: number
           price: number | null
           show_duedate: boolean | null
           sizzle_deliveryday: string | null
+          storytel_delivery_days: string[]
           translated_allergens: string | null
           translated_consumption_guidelines: string | null
           translated_description: string | null
@@ -184,11 +186,13 @@ export type Database = {
           is_only_for_storytel?: boolean | null
           is_snack?: boolean | null
           is_vegan?: boolean | null
+          is_vegetarian?: boolean
           name?: string | null
           numeric_id?: number
           price?: number | null
           show_duedate?: boolean | null
           sizzle_deliveryday?: string | null
+          storytel_delivery_days?: string[]
           translated_allergens?: string | null
           translated_consumption_guidelines?: string | null
           translated_description?: string | null
@@ -213,11 +217,13 @@ export type Database = {
           is_only_for_storytel?: boolean | null
           is_snack?: boolean | null
           is_vegan?: boolean | null
+          is_vegetarian?: boolean
           name?: string | null
           numeric_id?: number
           price?: number | null
           show_duedate?: boolean | null
           sizzle_deliveryday?: string | null
+          storytel_delivery_days?: string[]
           translated_allergens?: string | null
           translated_consumption_guidelines?: string | null
           translated_description?: string | null
@@ -278,7 +284,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      product_type: "SNACK" | "BREAKFAST" | "FOOD" | "DRINK"
+      product_type: "FOOD" | "DRINK" | "BREAKFAST" | "SNACK"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -406,7 +412,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      product_type: ["SNACK", "BREAKFAST", "FOOD", "DRINK"],
+      product_type: ["FOOD", "DRINK", "BREAKFAST", "SNACK"],
     },
   },
 } as const
