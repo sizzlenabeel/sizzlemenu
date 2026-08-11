@@ -173,9 +173,23 @@ export function useProducts(locationId?: string) {
           .filter((row): row is ProductRow => row !== null)
       );
 
+      const allProducts = await fetchAllProducts(signal);
+
+      // Allocations govern lunch (FOOD) dishes only. Pantry items — snacks,
+      // breakfast and drinks — are not allocated per location, so always
+      // include them alongside whatever is allocated to this fridge.
+      const isPantryItem = (row: ProductRow) =>
+        row.types && row.types.length > 0
+          ? !row.types.includes('FOOD')
+          : row.is_snack === true;
+
       const products = allocatedProducts.length > 0
-        ? allocatedProducts
-        : await fetchAllProducts(signal);
+        ? dedupeProducts([
+            ...allocatedProducts,
+            ...allProducts.filter(isPantryItem),
+          ])
+        : allProducts;
+
 
       const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
         const isEnglish = language === 'en';
