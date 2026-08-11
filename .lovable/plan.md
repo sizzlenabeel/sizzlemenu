@@ -20,7 +20,7 @@ not the whole menu.
 
 1. `src/hooks/useProducts.ts`
    - Always load the full week's products in addition to the location's allocations.
-   - Build the dish list as: allocated products, plus every non-lunch product of the current week
+   - Build the dish list as: allocated products, plus every non-food product of the current week
      (snacks, breakfast, drinks) that is not location-restricted.
    - Keep the existing behaviour when a location has no allocations at all.
 
