@@ -4,10 +4,6 @@ import { Dish, DayOfWeek, ProductType, Category } from '@/types/menu';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { createQuerySignal } from '@/lib/queryTimeout';
 
-interface AllocationProductRow {
-  product: ProductRow | ProductRow[] | null;
-}
-
 interface ProductRow {
   id: string;
   numeric_id: number;
@@ -53,15 +49,6 @@ function parseDayOfWeek(day: string | null): DayOfWeek | undefined {
   const normalized = day.toLowerCase().trim();
   const validDays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
   return validDays.includes(normalized as DayOfWeek) ? (normalized as DayOfWeek) : undefined;
-}
-
-function extractProduct(row: AllocationProductRow): ProductRow | null {
-  if (!row.product) return null;
-  return Array.isArray(row.product) ? row.product[0] ?? null : row.product;
-}
-
-function dedupeProducts(products: ProductRow[]) {
-  return Array.from(new Map(products.map((product) => [product.id, product])).values());
 }
 
 function getCategory(productType: ProductType): Category {
@@ -132,93 +119,36 @@ export function useProducts(locationId?: string) {
       const { signal, cleanup } = createQuerySignal(parentSignal);
 
       try {
-        const { data, error } = await supabase
-          .from('allocations')
-          .select(`
-          product:products(
-            id,
-            numeric_id,
-            name,
-            translated_name,
-            description,
-            translated_description,
-            ingredients,
-            translated_ingredients,
-            allergens,
-            translated_allergens,
-            consumption_guidelines,
-            translated_consumption_guidelines,
-            price,
-            due_date,
-            show_duedate,
-            is_vegan,
-            is_snack,
-            types,
-            is_for_storytel,
-            is_only_for_storytel,
-            delivery_day,
-            week_number,
-            sizzle_deliveryday,
-            image_url
-          )
-          `)
-          .eq("location_id", locationId)
-          .abortSignal(signal);
+        const products = await fetchAllProducts(signal);
 
-        if (error) throw error;
+        const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
+          const isEnglish = language === 'en';
+          const categories = getCategories(row.types, row.is_snack);
 
-      const allocatedProducts = dedupeProducts(
-        (data || [])
-          .map(extractProduct)
-          .filter((row): row is ProductRow => row !== null)
-      );
-
-      const allProducts = await fetchAllProducts(signal);
-
-      // Allocations govern lunch (FOOD) dishes only. Pantry items — snacks,
-      // breakfast and drinks — are not allocated per location, so always
-      // include them alongside whatever is allocated to this fridge.
-      const isPantryItem = (row: ProductRow) =>
-        row.types && row.types.length > 0
-          ? !row.types.includes('FOOD')
-          : row.is_snack === true;
-
-      const products = allocatedProducts.length > 0
-        ? dedupeProducts([
-            ...allocatedProducts,
-            ...allProducts.filter(isPantryItem),
-          ])
-        : allProducts;
-
-
-      const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
-        const isEnglish = language === 'en';
-        const categories = getCategories(row.types, row.is_snack);
-
-        return {
-          id: row.id,
-          numericId: row.numeric_id,
-          name: (isEnglish ? row.translated_name : row.name) || row.name || 'Unknown',
-          description: (isEnglish ? row.translated_description : row.description) || row.description || '',
-          ingredients: isEnglish
-            ? parseIngredients(row.ingredients, row.translated_ingredients)
-            : parseIngredients(row.ingredients, null),
-          allergens: (isEnglish ? row.translated_allergens : row.allergens) || row.allergens || '',
-          consumptionGuidelines: (isEnglish ? row.translated_consumption_guidelines : row.consumption_guidelines) || row.consumption_guidelines || '',
-          price: row.price || 0,
-          dueDate: row.due_date ? new Date(row.due_date) : new Date(),
-          showDueDate: row.show_duedate === true,
-          category: categories[0],
-          categories,
-          isVegan: row.is_vegan || false,
-          day: parseDayOfWeek(row.delivery_day),
-          isForStorytel: row.is_for_storytel || false,
-          isOnlyForStorytel: row.is_only_for_storytel || false,
-          weekNumber: row.week_number ?? undefined,
-          sizzleDeliveryDay: parseDayOfWeek(row.sizzle_deliveryday),
-          imageUrl: row.image_url ?? undefined,
-        };
-      });
+          return {
+            id: row.id,
+            numericId: row.numeric_id,
+            name: (isEnglish ? row.translated_name : row.name) || row.name || 'Unknown',
+            description: (isEnglish ? row.translated_description : row.description) || row.description || '',
+            ingredients: isEnglish
+              ? parseIngredients(row.ingredients, row.translated_ingredients)
+              : parseIngredients(row.ingredients, null),
+            allergens: (isEnglish ? row.translated_allergens : row.allergens) || row.allergens || '',
+            consumptionGuidelines: (isEnglish ? row.translated_consumption_guidelines : row.consumption_guidelines) || row.consumption_guidelines || '',
+            price: row.price || 0,
+            dueDate: row.due_date ? new Date(row.due_date) : new Date(),
+            showDueDate: row.show_duedate === true,
+            category: categories[0],
+            categories,
+            isVegan: row.is_vegan || false,
+            day: parseDayOfWeek(row.delivery_day),
+            isForStorytel: row.is_for_storytel || false,
+            isOnlyForStorytel: row.is_only_for_storytel || false,
+            weekNumber: row.week_number ?? undefined,
+            sizzleDeliveryDay: parseDayOfWeek(row.sizzle_deliveryday),
+            imageUrl: row.image_url ?? undefined,
+          };
+        });
 
         return dishes;
       } finally {
