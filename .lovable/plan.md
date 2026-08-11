@@ -1,32 +1,45 @@
-# Fix: blank page + "Invalid time value" on category click
+# Fix: no items available today, only "upcoming"
 
-## What's wrong
+## What I found (verified against the live database)
 
-Three dishes in the database store their best-before date in day/month/year text form
-(`24/08/2026`, `24/09/2026`, `31/01/2027`) instead of the standard year-month-day form.
-The app turns that text into a date, gets an unusable value, and when a card tries to print
-"24 Aug" the whole page crashes with `RangeError: Invalid time value` and goes blank.
+- Week 33 has 34 products: 7 lunch dishes plus ~20 snacks, breakfast items and drinks.
+- Every location (all 8, including Tobii and Storytel) has exactly **3 allocations**, and all 3 are
+  the same Wednesday lunch dishes: Mapo Tofu, Köttbullar potatismos, Teriyaki glaserad kyckling.
+- No snack, breakfast or drink is allocated to any location for this week.
 
-It only shows up on certain categories because that's where those three dishes live.
+The menu loads products through the allocations table. Because allocations exist (3 rows), the app
+treats that as the complete list for the location and never falls back to the general product list.
+Those 3 dishes are delivered Wednesday, today is Tuesday, so all 3 land in "Upcoming deliveries" —
+leaving Food, Snacks, Breakfast and Drinks empty. Nothing is broken in the routing or the location
+lookup; the data simply has no allocated fridge items for today.
 
 ## The fix
 
-1. **Parse dates safely** (`src/hooks/useProducts.ts`)
-   - Add a small date parser that accepts both `YYYY-MM-DD` and `DD/MM/YYYY`.
-   - If a date can't be understood, store it as "no date" instead of a broken date.
-   - Filters that compare against today skip dishes with no date rather than crash.
+Change how the app decides what a fridge contains: allocations should govern **lunch dishes only**,
+not the whole menu.
 
-2. **Never crash on a missing date** (`src/components/menu/DishCard.tsx`)
-   - Only format and display the best-before line when a valid date exists.
-   - Card still renders name, price, badges and buttons when the date is absent.
+1. `src/hooks/useProducts.ts`
+   - Always load the full week's products in addition to the location's allocations.
+   - Build the dish list as: allocated products, plus every non-lunch product of the current week
+     (snacks, breakfast, drinks) that is not location-restricted.
+   - Keep the existing behaviour when a location has no allocations at all.
 
-3. **Same guard on the sorting paths** (`src/pages/LocationMenu.tsx`, `src/pages/DailyMenu.tsx`)
-   - Dishes without a date sort last instead of producing `NaN` comparisons.
+2. No change to filtering or card rendering — once snacks/breakfast/drinks reach the page, the
+   existing available/upcoming split already handles them (they have no delivery day, so they show
+   as available immediately).
+
+## Alternative, if you prefer data over code
+
+If the intent is that a fridge only shows what has actually been allocated to it, then this is a
+data-entry gap: snacks, breakfast and drinks need allocation rows per location per week. In that
+case I would leave the code alone and we would instead need a way to allocate pantry items.
+
+Tell me which of the two you want; the plan above implements the first.
 
 ## Technical notes
 
-- `Dish.dueDate` becomes `Date | null`; all read sites updated.
-- `new Date("24/08/2026")` is `Invalid Date` in Chrome/Safari, and `date-fns` `format`
-  throws `RangeError` on it — that throw during render unmounts the tree, which is the blank page.
-- No database change: the three rows keep their current text; the app handles both formats.
-  Optionally I can normalise those rows later so all dates share one format.
+- Today is 2026-08-11 (ISO week 33, Tuesday); `getTodayDayIndex()` returns 1, Wednesday is 2, so
+  `deliveryDayIndex > todayIndex` sends all three dishes to the upcoming bucket — correct behaviour,
+  wrong input set.
+- "Non-lunch" is determined by `types` containing SNACK, BREAKFAST or DRINK.
+- `is_only_for_storytel` items stay excluded from standard locations, as today.
