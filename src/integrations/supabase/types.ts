@@ -240,31 +240,22 @@ export type Database = {
           created_at: string
           delivery_date: string
           id: string
-          is_snack: boolean
           location_id: string
           total_required: number
-          week_number: number
-          year: number
         }
         Insert: {
           created_at?: string
           delivery_date: string
           id?: string
-          is_snack?: boolean
           location_id: string
           total_required?: number
-          week_number: number
-          year: number
         }
         Update: {
           created_at?: string
           delivery_date?: string
           id?: string
-          is_snack?: boolean
           location_id?: string
           total_required?: number
-          week_number?: number
-          year?: number
         }
         Relationships: [
           {
