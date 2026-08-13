@@ -100,6 +100,7 @@ async function fetchAllProducts(signal: AbortSignal) {
       delivery_day,
       week_number,
       sizzle_deliveryday,
+      storytel_delivery_days,
       image_url
     `)
     .abortSignal(signal);
