@@ -155,6 +155,7 @@ export function useProducts(locationId?: string) {
             isOnlyForStorytel: row.is_only_for_storytel || false,
             weekNumber: row.week_number ?? undefined,
             sizzleDeliveryDay: parseDayOfWeek(row.sizzle_deliveryday),
+            storytelDeliveryDays: parseDays(row.storytel_delivery_days),
             imageUrl: row.image_url ?? undefined,
           };
         });
