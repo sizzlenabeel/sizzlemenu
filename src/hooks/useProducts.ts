@@ -52,6 +52,13 @@ function parseDayOfWeek(day: string | null): DayOfWeek | undefined {
   return validDays.includes(normalized as DayOfWeek) ? (normalized as DayOfWeek) : undefined;
 }
 
+function parseDays(days: string[] | null): DayOfWeek[] {
+  if (!Array.isArray(days)) return [];
+  return days
+    .map((d) => parseDayOfWeek(d))
+    .filter((d): d is DayOfWeek => Boolean(d));
+}
+
 function getCategory(productType: ProductType): Category {
   switch (productType) {
     case 'SNACK':
