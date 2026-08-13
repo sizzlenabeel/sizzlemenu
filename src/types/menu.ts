@@ -28,6 +28,7 @@ export interface Dish {
   weekNumber?: number;
   imageUrl?: string;
   sizzleDeliveryDay?: DayOfWeek;
+  storytelDeliveryDays?: DayOfWeek[];
 }
 
 export interface MenuFilters {

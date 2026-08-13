@@ -28,6 +28,7 @@ interface ProductRow {
   delivery_day: string | null;
   week_number: number | null;
   sizzle_deliveryday: string | null;
+  storytel_delivery_days: string[] | null;
   image_url: string | null;
 }
 
@@ -49,6 +50,13 @@ function parseDayOfWeek(day: string | null): DayOfWeek | undefined {
   const normalized = day.toLowerCase().trim();
   const validDays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
   return validDays.includes(normalized as DayOfWeek) ? (normalized as DayOfWeek) : undefined;
+}
+
+function parseDays(days: string[] | null): DayOfWeek[] {
+  if (!Array.isArray(days)) return [];
+  return days
+    .map((d) => parseDayOfWeek(d))
+    .filter((d): d is DayOfWeek => Boolean(d));
 }
 
 function getCategory(productType: ProductType): Category {
@@ -99,6 +107,7 @@ async function fetchAllProducts(signal: AbortSignal) {
       delivery_day,
       week_number,
       sizzle_deliveryday,
+      storytel_delivery_days,
       image_url
     `)
     .abortSignal(signal);
@@ -146,6 +155,7 @@ export function useProducts(locationId?: string) {
             isOnlyForStorytel: row.is_only_for_storytel || false,
             weekNumber: row.week_number ?? undefined,
             sizzleDeliveryDay: parseDayOfWeek(row.sizzle_deliveryday),
+            storytelDeliveryDays: parseDays(row.storytel_delivery_days),
             imageUrl: row.image_url ?? undefined,
           };
         });

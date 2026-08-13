@@ -46,7 +46,14 @@ export default function DailyMenu({
       if (!dish.categories.includes(filters.category)) return false;
       if (filters.veganOnly && !dish.isVegan) return false;
       if (dish.weekNumber !== currentWeek) return false;
-      if (dish.category === "food" && dish.day !== selectedDay) return false;
+      if (dish.category === "food") {
+        const days = dish.storytelDeliveryDays ?? [];
+        if (days.length > 0) {
+          if (!days.includes(selectedDay)) return false;
+        } else if (dish.day !== selectedDay) {
+          return false;
+        }
+      }
       return true;
     });
 
