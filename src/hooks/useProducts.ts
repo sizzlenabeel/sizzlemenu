@@ -28,6 +28,7 @@ interface ProductRow {
   delivery_day: string | null;
   week_number: number | null;
   sizzle_deliveryday: string | null;
+  storytel_delivery_days: string[] | null;
   image_url: string | null;
 }
 
