@@ -1,35 +1,25 @@
-# Eliminate allocation-driven menu visibility
+# Storytel food: use storytel_delivery_days
 
-## Confirmed root cause
+## Verified current state
 
-- The affected published JavaScript still queries `allocations` by `location_id` before building the menu.
-- When any allocation exists, that runtime branch treats allocated products as the base list and conditionally merges other products. This is why inserting allocation rows changes the visible menu and can remove snacks, breakfast, and drinks.
-- The database confirms the mismatch: week 33 has current snacks, breakfast, and drinks in `products`, but none of them have allocation rows; only food has allocation links.
-- The current repository version of `src/hooks/useProducts.ts` no longer contains that query, but the published bundle is older and still does. The previous investigation incorrectly treated the repository/local source as proof of the behavior on the affected deployment.
+- Storytel's page (`DailyMenu.tsx`) filters food with a single day: `dish.day !== selectedDay`, where `day` comes from the `delivery_day` column.
+- The database has `storytel_delivery_days` populated for current-week Storytel food, e.g. `[Monday, Tuesday]`, `[Wednesday, Thursday]`, `[Wednesday, Thursday, Friday]`, `[Friday]`. Values are capitalized day names; non-food items have empty arrays.
+- The product loader (`useProducts.ts`) does not currently read `storytel_delivery_days`.
 
-## Implementation
+## Change
 
-1. Make the product hook unambiguously location-independent.
-   - Change `useProducts(locationId)` to `useProducts()`.
-   - Remove `locationId` from its query key and remove the location-dependent `enabled` gate.
-   - Keep one direct query to `public.products`; do not read, join, merge, or fall back through `allocations`.
-   - Update both standard-location and Storytel pages to call the location-independent hook.
+1. Load the new column
+   - Add `storytel_delivery_days` to the products query and map it to a normalized lowercase day list on the dish object.
 
-2. Preserve the intended page-level rules.
-   - Keep current-week, due-date, category, vegan, Storytel, and delivery-day filtering unchanged.
-   - Standard locations will continue splitting food into available/upcoming using `sizzle_deliveryday`.
-   - Allocation rows will have no effect on any product category.
+2. Storytel food filtering (Storytel only)
+   - On the Storytel daily menu, a food dish shows on the selected day when that day is in its `storytel_delivery_days` list.
+   - Fall back to the existing single `delivery_day` behaviour only when the array is empty or missing, so nothing disappears for dishes not yet filled in.
+   - Snacks, breakfast, and drinks keep their current behaviour (no day filtering).
 
-3. Add a regression guard.
-   - Add a focused test or source-level assertion proving the menu loader makes a `products` request and never an `allocations` request.
-   - Cover the important case: allocation rows may exist while unallocated snacks, breakfast, drinks, and food remain in the menu input.
+3. No change for other locations
+   - `LocationMenu.tsx` keeps using `sizzle_deliveryday` for available/upcoming splitting. The new column is ignored there.
 
-4. Verify the actual runtime, not only the source.
-   - Verify representative standard and Storytel routes locally across all four categories.
-   - Inspect browser network traffic and confirm category changes make no request to `allocations`.
-   - Confirm the built production asset contains the direct `products` loader and no allocation-driven menu branch.
-   - After the updated build is published by the configured deployment, re-check the deployed asset and routes; source verification alone will not be considered sufficient.
+## Verification
 
-## Database impact
-
-No database migration or allocation deletion is required. The `allocations` table can remain for operational purposes, but the customer menu will not read it.
+- Storytel route: confirm a `[Monday, Tuesday]` dish appears on both Monday and Tuesday tabs and not on Wednesday; a `[Wednesday, Thursday, Friday]` dish appears on all three.
+- Confirm snacks/breakfast/drinks tabs are unchanged, and a standard location's menu is unchanged.

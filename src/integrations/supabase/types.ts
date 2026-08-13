@@ -65,6 +65,33 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          company: string
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          office_size: string | null
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          office_size?: string | null
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          office_size?: string | null
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string
