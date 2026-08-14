@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const contacts = [
   {
     icon: MessageCircle,
-    href: "https://m.me/YOUR_PAGE",
+    href: "https://www.facebook.com/sizzle.se",
     labelEn: "Messenger",
     labelSv: "Messenger",
   },
@@ -16,7 +16,7 @@ const contacts = [
   },
   {
     icon: Phone,
-    href: "tel:+46XXXXXXXXX",
+    href: "tel:+46707202201",
     labelEn: "Call",
     labelSv: "Ring",
   },
