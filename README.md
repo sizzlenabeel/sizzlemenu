@@ -20,4 +20,5 @@ For a reusable internal banner link, use `{location}` in place of the location's
 Dynamo ID. For example, `/{location}/snacks` resolves to `/storytel/snacks` when
 viewed from Storytel. Supported paths are `/{location}/food`,
 `/{location}/snacks`, `/{location}/breakfast`, `/{location}/drinks`, and
-`/{location}/product/{productId}`.
+`/{location}/product/{productId}`. `{baseurl}` is also supported when an absolute
+URL is needed, for example `{baseurl}/{location}/snacks`.

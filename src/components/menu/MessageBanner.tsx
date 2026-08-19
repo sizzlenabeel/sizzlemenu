@@ -22,11 +22,12 @@ export function MessageBanner({ banners }: { banners: BannerMessage[] }) {
   return (
     <div className="w-full border-b border-primary/20 bg-primary text-primary-foreground shadow-sm">
       {banners.map((banner) => {
-        const resolvedUrl = banner.link_url?.includes("{location}")
-          ? dynamoId
-            ? banner.link_url.replaceAll("{location}", encodeURIComponent(dynamoId))
-            : null
-          : banner.link_url;
+        const needsLocation = banner.link_url?.includes("{location}");
+        const resolvedUrl = needsLocation && !dynamoId
+          ? null
+          : banner.link_url
+              ?.replaceAll("{baseurl}", window.location.origin)
+              .replaceAll("{location}", encodeURIComponent(dynamoId ?? ""));
         const link = getSafeLink(resolvedUrl ?? null);
         const content = (
           <>
