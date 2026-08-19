@@ -10,6 +10,7 @@ import { CookieConsent } from "@/components/CookieConsent";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import LocationPage from "./pages/LocationPage";
+import ProductPage from "./pages/ProductPage";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,8 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/:dynamoId/product/:productId" element={<ProductPage />} />
+                <Route path="/:dynamoId/:category" element={<LocationPage />} />
                 <Route path="/:dynamoId" element={<LocationPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

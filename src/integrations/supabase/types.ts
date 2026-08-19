@@ -14,6 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      banner_messages: {
+        Row: { created_at: string; ends_at: string | null; id: string; link_label: string | null; link_url: string | null; message: string; starts_at: string }
+        Insert: { created_at?: string; ends_at?: string | null; id?: string; link_label?: string | null; link_url?: string | null; message: string; starts_at?: string }
+        Update: { created_at?: string; ends_at?: string | null; id?: string; link_label?: string | null; link_url?: string | null; message?: string; starts_at?: string }
+        Relationships: []
+      }
       allocations: {
         Row: {
           created_at: string

@@ -3,7 +3,7 @@ import NotFound from "./NotFound";
 import DailyMenu from "./DailyMenu";
 import LocationMenu from "./LocationMenu";
 import { useLocation } from "@/hooks/useLocation";
-import { DayOfWeek } from "@/types/menu";
+import { Category, DayOfWeek } from "@/types/menu";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 function usesDailyMenu(locationName: string) {
@@ -30,7 +30,7 @@ function getStorytelInitialDay(date = new Date()): DayOfWeek {
 }
 
 export default function LocationPage() {
-  const { dynamoId } = useParams();
+  const { dynamoId, category } = useParams();
   const { language } = useLanguage();
   const { data: location, isLoading, error } = useLocation(dynamoId);
 
@@ -64,16 +64,28 @@ export default function LocationPage() {
     return <NotFound />;
   }
 
+  const validCategories: Category[] = ["food", "snacks", "breakfast", "drinks"];
+  if (category && !validCategories.includes(category as Category)) {
+    return <NotFound />;
+  }
+  const initialCategory = category as Category | undefined;
+
   if (usesDailyMenu(location.name)) {
     return (
       <DailyMenu
         locationId={location.id}
         locationName={location.name}
-        initialCategory="snacks"
+        initialCategory={initialCategory ?? "snacks"}
         initialSelectedDay={getStorytelInitialDay()}
       />
     );
   }
 
-  return <LocationMenu locationId={location.id} locationName={location.name} />;
+  return (
+    <LocationMenu
+      locationId={location.id}
+      locationName={location.name}
+      initialCategory={initialCategory}
+    />
+  );
 }

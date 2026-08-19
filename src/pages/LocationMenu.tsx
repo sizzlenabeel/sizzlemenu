@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { MenuFilters, DayOfWeek, ViewMode } from "@/types/menu";
+import { useEffect, useState, useMemo } from "react";
+import { Category, MenuFilters, DayOfWeek, ViewMode } from "@/types/menu";
 import { MenuHeader } from "@/components/menu/MenuHeader";
 import { FilterBar } from "@/components/menu/FilterBar";
 import { DishCard } from "@/components/menu/DishCard";
@@ -10,10 +10,14 @@ import { ContactButtons } from "@/components/menu/ContactButtons";
 import { CartBar } from "@/components/menu/CartBar";
 import { getISOWeek } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNavigate, useParams } from "react-router-dom";
+import { useBannerMessages } from "@/hooks/useBannerMessages";
+import { MessageBanner } from "@/components/menu/MessageBanner";
 
 interface LocationMenuProps {
   locationId: string;
   locationName: string;
+  initialCategory?: Category;
 }
 
 const DAY_ORDER: DayOfWeek[] = [
@@ -33,11 +37,14 @@ function getTodayDayIndex(): number {
 export default function LocationMenu({
   locationId,
   locationName,
+  initialCategory = "food",
 }: LocationMenuProps) {
   const currentWeek = getISOWeek(new Date());
+  const navigate = useNavigate();
+  const { dynamoId } = useParams();
   const [viewMode, setViewMode] = useState<ViewMode>("tile");
   const [filters, setFilters] = useState<MenuFilters>({
-    category: "food",
+    category: initialCategory,
     veganOnly: false,
     sortBy: "dueDate",
   });
@@ -45,6 +52,18 @@ export default function LocationMenu({
   const isSwedish = language === "sv";
 
   const { data: allDishes, isLoading, error } = useProducts(locationId);
+  const { data: banners = [] } = useBannerMessages();
+
+  useEffect(() => {
+    setFilters((current) => ({ ...current, category: initialCategory }));
+  }, [initialCategory]);
+
+  const updateFilters = (nextFilters: MenuFilters) => {
+    setFilters(nextFilters);
+    if (dynamoId && nextFilters.category !== filters.category) {
+      navigate(`/${encodeURIComponent(dynamoId)}/${nextFilters.category}`);
+    }
+  };
 
   const { available, upcoming } = useMemo(() => {
     if (!allDishes) return { available: [], upcoming: [] };
@@ -117,6 +136,7 @@ export default function LocationMenu({
 
   return (
     <div className="min-h-screen bg-background">
+      <MessageBanner banners={banners} />
       <div className="container max-w-4xl py-8 px-4">
         <MenuHeader
           locationName={locationName}
@@ -125,7 +145,7 @@ export default function LocationMenu({
           onViewModeChange={setViewMode}
         />
 
-        <FilterBar filters={filters} onFiltersChange={setFilters} />
+        <FilterBar filters={filters} onFiltersChange={updateFilters} />
 
         <div
           className={

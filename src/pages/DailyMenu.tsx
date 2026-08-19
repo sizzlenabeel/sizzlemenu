@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Category, DayOfWeek, MenuFilters, ViewMode } from "@/types/menu";
 import { MenuHeader } from "@/components/menu/MenuHeader";
 import { DayTabs } from "@/components/menu/DayTabs";
@@ -10,6 +10,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ContactButtons } from "@/components/menu/ContactButtons";
 import { CartBar } from "@/components/menu/CartBar";
 import { getISOWeek } from "date-fns";
+import { useBannerMessages } from "@/hooks/useBannerMessages";
+import { MessageBanner } from "@/components/menu/MessageBanner";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface DailyMenuProps {
   locationId: string;
@@ -25,6 +28,8 @@ export default function DailyMenu({
   initialSelectedDay = "monday",
 }: DailyMenuProps) {
   const currentWeek = getISOWeek(new Date());
+  const navigate = useNavigate();
+  const { dynamoId } = useParams();
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>(initialSelectedDay);
   const [viewMode, setViewMode] = useState<ViewMode>("tile");
   const [filters, setFilters] = useState<MenuFilters>({
@@ -34,6 +39,18 @@ export default function DailyMenu({
   });
 
   const { data: allDishes, isLoading, error } = useProducts(locationId);
+  const { data: banners = [] } = useBannerMessages();
+
+  useEffect(() => {
+    setFilters((current) => ({ ...current, category: initialCategory }));
+  }, [initialCategory]);
+
+  const updateFilters = (nextFilters: MenuFilters) => {
+    setFilters(nextFilters);
+    if (dynamoId && nextFilters.category !== filters.category) {
+      navigate(`/${encodeURIComponent(dynamoId)}/${nextFilters.category}`);
+    }
+  };
 
   const filteredDishes = useMemo(() => {
     if (!allDishes) return [];
@@ -87,6 +104,7 @@ export default function DailyMenu({
 
   return (
     <div className="min-h-screen bg-background">
+      <MessageBanner banners={banners} />
       <div className="container max-w-4xl py-8 px-4">
         <MenuHeader
           locationName={locationName}
@@ -99,7 +117,7 @@ export default function DailyMenu({
           <DayTabs selectedDay={selectedDay} onChange={setSelectedDay} />
         </div>
 
-        <FilterBar filters={filters} onFiltersChange={setFilters} />
+        <FilterBar filters={filters} onFiltersChange={updateFilters} />
 
         <div
           className={
