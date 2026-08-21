@@ -153,7 +153,7 @@ export default function DailyMenu({
         </div>
 
         <ContactButtons />
-        <CartBar locationName={locationName} />
+        <CartBar locationName={locationName} locationId={locationId} />
       </div>
     </div>
   );

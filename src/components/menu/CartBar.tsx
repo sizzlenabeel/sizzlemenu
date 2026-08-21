@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Dish } from "@/types/menu";
+import { useProducts } from "@/hooks/useProducts";
 
 interface CartBarProps {
   locationName: string;
+  locationId: string;
 }
 
 function buildSwishUrl(locationName: string, items: { dish: Dish; quantity: number }[]) {
@@ -20,25 +22,32 @@ function buildSwishUrl(locationName: string, items: { dish: Dish; quantity: numb
     })
     .join(",");
   const msg = `${locationName}: ${productIds}`.substring(0, 50);
-  return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${total}&cur=SEK&msg=${msg}&edit=amt,msg&src=qr`;
+  return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${total}&cur=SEK&msg=${msg}&edit=msg&src=qr`;
 }
 
-export function CartBar({ locationName }: CartBarProps) {
+export function CartBar({ locationName, locationId }: CartBarProps) {
   const { items, removeFromCart, addToCart, clearCart, getCartTotal, getItemCount } = useCart();
+  const { data: currentProducts } = useProducts(locationId);
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const isSwedish = language === "sv";
 
   if (items.length === 0) return null;
 
-  const swishUrl = buildSwishUrl(locationName, items);
+  const currentPriceById = new Map(currentProducts?.map((product) => [product.id, product.price]));
+  const pricedItems = items.map((item) => ({
+    ...item,
+    dish: { ...item.dish, price: currentPriceById.get(item.dish.id) ?? item.dish.price },
+  }));
+  const currentTotal = pricedItems.reduce((sum, item) => sum + item.dish.price * item.quantity, 0);
+  const swishUrl = buildSwishUrl(locationName, pricedItems);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-lg">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleContent>
           <div className="container max-w-4xl px-4 py-3 space-y-2 max-h-60 overflow-y-auto">
-            {items.map((item) => (
+            {pricedItems.map((item) => (
               <div key={item.dish.id} className="flex items-center justify-between text-sm">
                 <span className="truncate flex-1">{item.dish.name}</span>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
@@ -70,7 +79,7 @@ export function CartBar({ locationName }: CartBarProps) {
                 <X className="h-4 w-4 mr-1" />
                 {isSwedish ? "Rensa" : "Clear"}
               </Button>
-              <span className="font-bold">{getCartTotal()} kr</span>
+              <span className="font-bold">{currentProducts ? currentTotal : getCartTotal()} kr</span>
               <a
                 href={swishUrl}
                 target="_blank"

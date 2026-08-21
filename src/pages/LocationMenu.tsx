@@ -200,7 +200,7 @@ export default function LocationMenu({
         )}
 
         <ContactButtons />
-        <CartBar locationName={locationName} />
+        <CartBar locationName={locationName} locationId={locationId} />
       </div>
     </div>
   );

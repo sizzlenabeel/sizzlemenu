@@ -19,6 +19,9 @@ export interface Dish {
   allergens: string;
   consumptionGuidelines: string;
   price: number;
+  originalPrice?: number;
+  dealId?: string;
+  dealName?: string;
   dueDate: Date;
   showDueDate?: boolean;
   category: Category;

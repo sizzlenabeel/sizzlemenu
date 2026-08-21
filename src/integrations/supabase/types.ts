@@ -20,6 +20,12 @@ export type Database = {
         Update: { created_at?: string; ends_at?: string | null; id?: string; link_label?: string | null; link_url?: string | null; message?: string; starts_at?: string }
         Relationships: []
       }
+      deals: {
+        Row: { categories: string[]; created_at: string; discount_type: string; discount_value: number; due_date_rule: string | null; ends_at: string | null; id: string; name: string; priority: number; starts_at: string }
+        Insert: { categories: string[]; created_at?: string; discount_type: string; discount_value: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name: string; priority?: number; starts_at?: string }
+        Update: { categories?: string[]; created_at?: string; discount_type?: string; discount_value?: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name?: string; priority?: number; starts_at?: string }
+        Relationships: []
+      }
       allocations: {
         Row: {
           created_at: string
@@ -311,7 +317,10 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      active_product_deals: {
+        Row: { deal_id: string | null; deal_name: string | null; discount_type: string | null; discount_value: number | null; final_price: number | null; original_price: number | null; product_id: string | null }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

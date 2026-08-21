@@ -37,7 +37,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
   const swishUrl = showBuyButton && locationName && !upcoming
     ? (() => {
         const msg = `${locationName}: ${swishProductId}`.substring(0, 50);
-        return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${dish.price}&cur=SEK&msg=${msg}&edit=amt,msg&src=qr`;
+        return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${dish.price}&cur=SEK&msg=${msg}&edit=msg&src=qr`;
       })()
     : null;
 
@@ -51,6 +51,9 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
       )}
       {upcoming && (
         <Badge variant="outline" className="text-xs">{upcomingLabel}</Badge>
+      )}
+      {dish.dealName && (
+        <Badge className="bg-red-600 text-white hover:bg-red-600">{dish.dealName}</Badge>
       )}
     </div>
   );
@@ -88,10 +91,13 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                 {upcoming && (
                   <Badge variant="outline" className="text-xs bg-background/80 backdrop-blur-sm">{upcomingLabel}</Badge>
                 )}
+                {dish.dealName && (
+                  <Badge className="bg-red-600 text-white hover:bg-red-600 text-xs">{dish.dealName}</Badge>
+                )}
               </div>
               {showPrice && (
                 <span className="absolute top-2 right-2 bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full shadow-md">
-                  {dish.price} kr
+                  <Price dish={dish} compact />
                 </span>
               )}
             </div>
@@ -149,7 +155,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                 <h3 className="font-bold text-xl">{dish.name}</h3>
                 {showPrice && (
                   <span className="bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full shadow-md shrink-0">
-                    {dish.price} kr
+                    <Price dish={dish} compact />
                   </span>
                 )}
               </div>
@@ -230,7 +236,7 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                 )}
               </div>
               {showPrice && (
-                <p className="text-2xl font-bold text-primary">{dish.price} kr</p>
+                <Price dish={dish} />
               )}
               {!upcoming && (showBuyButton || swishUrl) && (
                 <div className="flex items-center justify-between gap-3 pt-1">
@@ -266,6 +272,17 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
         </CollapsibleContent>
       </Collapsible>
     </Card>
+  );
+}
+
+function Price({ dish, compact = false }: { dish: Dish; compact?: boolean }) {
+  return (
+    <span className={cn("inline-flex items-baseline gap-2 font-bold", compact ? "text-sm" : "text-2xl text-primary")}>
+      {dish.originalPrice !== undefined && (
+        <span className={cn("font-medium line-through opacity-70", compact ? "text-xs" : "text-base text-muted-foreground")}>{dish.originalPrice} kr</span>
+      )}
+      <span>{dish.price} kr</span>
+    </span>
   );
 }
 

@@ -32,6 +32,14 @@ interface ProductRow {
   image_url: string | null;
 }
 
+interface DealRow {
+  product_id: string;
+  deal_id: string;
+  deal_name: string;
+  original_price: number;
+  final_price: number;
+}
+
 function parseIngredients(ingredients: string | null, translatedIngredients: unknown): string[] {
   if (Array.isArray(translatedIngredients) && translatedIngredients.length > 0) {
     return translatedIngredients.map(String);
@@ -81,9 +89,8 @@ function getCategories(types: ProductType[] | null, isSnack: boolean | null): Ca
 }
 
 async function fetchAllProducts(signal: AbortSignal) {
-  const { data, error } = await supabase
-    .from('products')
-    .select(`
+  const [productsResult, dealsResult] = await Promise.all([
+    supabase.from('products').select(`
       id,
       numeric_id,
       name,
@@ -109,12 +116,18 @@ async function fetchAllProducts(signal: AbortSignal) {
       sizzle_deliveryday,
       storytel_delivery_days,
       image_url
-    `)
-    .abortSignal(signal);
+    `).abortSignal(signal),
+    supabase.from('active_product_deals').select('product_id, deal_id, deal_name, original_price, final_price').abortSignal(signal),
+  ]);
 
-  if (error) throw error;
+  if (productsResult.error) throw productsResult.error;
 
-  return (data || []) as ProductRow[];
+  return {
+    products: (productsResult.data || []) as ProductRow[],
+    // Deals are optional. If the migration has not been applied or the view is
+    // temporarily unavailable, keep the menu usable at normal product prices.
+    deals: dealsResult.error ? [] : (dealsResult.data || []) as DealRow[],
+  };
 }
 
 export function useProducts(locationId?: string) {
@@ -124,15 +137,20 @@ export function useProducts(locationId?: string) {
     queryKey: ['products', locationId, language],
     enabled: Boolean(locationId),
     retry: 1,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
     queryFn: async ({ signal: parentSignal }) => {
       const { signal, cleanup } = createQuerySignal(parentSignal);
 
       try {
-        const products = await fetchAllProducts(signal);
+        const { products, deals } = await fetchAllProducts(signal);
+        const dealsByProduct = new Map(deals.map((deal) => [deal.product_id, deal]));
 
         const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
           const isEnglish = language === 'en';
           const categories = getCategories(row.types, row.is_snack);
+          const deal = dealsByProduct.get(row.id);
+          const basePrice = row.price || 0;
 
           return {
             id: row.id,
@@ -144,7 +162,10 @@ export function useProducts(locationId?: string) {
               : parseIngredients(row.ingredients, null),
             allergens: (isEnglish ? row.translated_allergens : row.allergens) || row.allergens || '',
             consumptionGuidelines: (isEnglish ? row.translated_consumption_guidelines : row.consumption_guidelines) || row.consumption_guidelines || '',
-            price: row.price || 0,
+            price: deal?.final_price ?? basePrice,
+            originalPrice: deal && deal.final_price < basePrice ? basePrice : undefined,
+            dealId: deal?.deal_id,
+            dealName: deal?.deal_name,
             dueDate: row.due_date ? new Date(row.due_date) : new Date(),
             showDueDate: row.show_duedate === true,
             category: categories[0],

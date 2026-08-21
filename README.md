@@ -22,3 +22,11 @@ viewed from Storytel. Supported paths are `/{location}/food`,
 `/{location}/snacks`, `/{location}/breakfast`, `/{location}/drinks`, and
 `/{location}/product/{productId}`. `{baseurl}` is also supported when an absolute
 URL is needed, for example `{baseurl}/{location}/snacks`.
+
+## Deals
+
+The `deals` table applies scheduled discounts without changing `products.price`.
+Choose `percentage`, `fixed_amount`, or `fixed_price`, select one or more
+categories, and optionally set `due_date_rule` to `today`. Same-day eligibility
+uses the `Europe/Stockholm` calendar date. If several deals match, the highest
+`priority` wins. The `active_product_deals` view exposes the calculated price.
