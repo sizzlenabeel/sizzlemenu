@@ -1,0 +1,1 @@
+alter view public.active_banner_messages set (security_invoker = on);
