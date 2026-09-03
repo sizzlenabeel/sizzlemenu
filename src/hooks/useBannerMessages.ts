@@ -32,7 +32,9 @@ export function useBannerMessages(locationId?: string) {
   return useQuery({
     queryKey: ["banner-messages", locationId ?? null],
     queryFn: async () => {
-      let activeResult = await supabase
+      type RawBanner = Partial<BannerMessage> & { id?: string | null; message?: string | null };
+
+      let activeResult: { data: RawBanner[] | null; error: { code?: string } | null } = await supabase
         .from("active_banner_messages")
         .select("id, message, link_label, link_url, product_id, location_ids")
         .order("created_at", { ascending: false });
@@ -48,9 +50,16 @@ export function useBannerMessages(locationId?: string) {
 
       let banners: BannerMessage[];
       if (!activeResult.error) {
-        banners = (activeResult.data || []).filter(
-          (banner): banner is BannerMessage => Boolean(banner.id && banner.message),
-        );
+        banners = (activeResult.data || [])
+          .filter((banner) => Boolean(banner.id && banner.message))
+          .map((banner) => ({
+            id: banner.id as string,
+            message: banner.message as string,
+            link_label: banner.link_label ?? null,
+            link_url: banner.link_url ?? null,
+            product_id: banner.product_id ?? null,
+            location_ids: banner.location_ids ?? null,
+          }));
       } else {
         if (!isMissingActiveBannerView(activeResult.error)) throw activeResult.error;
 
