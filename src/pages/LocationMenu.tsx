@@ -52,7 +52,7 @@ export default function LocationMenu({
   const isSwedish = language === "sv";
 
   const { data: allDishes, isLoading, error } = useProducts(locationId);
-  const { data: banners = [] } = useBannerMessages();
+  const { data: banners = [] } = useBannerMessages(locationId);
 
   useEffect(() => {
     setFilters((current) => ({ ...current, category: initialCategory }));
