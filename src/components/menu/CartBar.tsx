@@ -51,11 +51,23 @@ export function CartBar({ locationName, locationId }: CartBarProps) {
               <div key={item.dish.id} className="flex items-center justify-between text-sm">
                 <span className="truncate flex-1">{item.dish.name}</span>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFromCart(item.dish.id)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    aria-label={isSwedish ? `Minska ${item.dish.name}` : `Decrease ${item.dish.name}`}
+                    onClick={() => removeFromCart(item.dish.id)}
+                  >
                     <Minus className="h-3 w-3" />
                   </Button>
                   <span className="w-5 text-center">{item.quantity}</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => addToCart(item.dish)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    aria-label={isSwedish ? `Öka ${item.dish.name}` : `Increase ${item.dish.name}`}
+                    onClick={() => addToCart(item.dish)}
+                  >
                     <Plus className="h-3 w-3" />
                   </Button>
                   <span className="w-16 text-right font-medium">{item.dish.price * item.quantity} kr</span>

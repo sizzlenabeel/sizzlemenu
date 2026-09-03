@@ -36,6 +36,7 @@ interface DealRow {
   product_id: string;
   deal_id: string;
   deal_name: string;
+  deal_label?: string | null;
   original_price: number;
   final_price: number;
 }
@@ -117,7 +118,9 @@ async function fetchAllProducts(signal: AbortSignal) {
       storytel_delivery_days,
       image_url
     `).abortSignal(signal),
-    supabase.from('active_product_deals').select('product_id, deal_id, deal_name, original_price, final_price').abortSignal(signal),
+    // Select the whole view so this frontend also works while the appended
+    // deal_label column is rolling out; older views simply omit that property.
+    supabase.from('active_product_deals').select('*').abortSignal(signal),
   ]);
 
   if (productsResult.error) throw productsResult.error;
@@ -166,6 +169,7 @@ export function useProducts(locationId?: string) {
             originalPrice: deal && deal.final_price < basePrice ? basePrice : undefined,
             dealId: deal?.deal_id,
             dealName: deal?.deal_name,
+            dealLabel: deal?.deal_label ?? deal?.deal_name,
             dueDate: row.due_date ? new Date(row.due_date) : new Date(),
             showDueDate: row.show_duedate === true,
             category: categories[0],

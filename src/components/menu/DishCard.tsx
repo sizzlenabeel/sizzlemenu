@@ -52,8 +52,8 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
       {upcoming && (
         <Badge variant="outline" className="text-xs">{upcomingLabel}</Badge>
       )}
-      {dish.dealName && (
-        <Badge className="bg-red-600 text-white hover:bg-red-600">{dish.dealName}</Badge>
+      {dish.dealLabel && (
+        <Badge className="bg-red-600 text-white hover:bg-red-600">{dish.dealLabel}</Badge>
       )}
     </div>
   );
@@ -91,8 +91,8 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
                 {upcoming && (
                   <Badge variant="outline" className="text-xs bg-background/80 backdrop-blur-sm">{upcomingLabel}</Badge>
                 )}
-                {dish.dealName && (
-                  <Badge className="bg-red-600 text-white hover:bg-red-600 text-xs">{dish.dealName}</Badge>
+                {dish.dealLabel && (
+                  <Badge className="bg-red-600 text-white hover:bg-red-600 text-xs">{dish.dealLabel}</Badge>
                 )}
               </div>
               {showPrice && (

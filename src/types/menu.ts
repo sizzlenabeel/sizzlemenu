@@ -22,6 +22,7 @@ export interface Dish {
   originalPrice?: number;
   dealId?: string;
   dealName?: string;
+  dealLabel?: string;
   dueDate: Date;
   showDueDate?: boolean;
   category: Category;

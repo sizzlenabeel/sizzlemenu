@@ -35,6 +35,9 @@ an absolute URL is needed, for example `{baseurl}/{location}/snacks`.
 The `deals` table applies scheduled discounts without changing `products.price`.
 Choose `percentage`, `fixed_amount`, or `fixed_price`, select one or more
 categories, and leave `target_product_id` empty for a category campaign.
+Use `name` as the internal/admin identifier and `display_label` for the short
+customer-facing badge. If `display_label` is left null, the badge falls back to
+`name` so existing deals continue to display correctly.
 
 For a specific item, leave `categories` empty and set `target_product_id` to its
 `products.id`. Use `starts_at` and `ends_at` for its duration—for example, set
@@ -54,12 +57,14 @@ and visibility follow it:
 ```sql
 WITH new_deal AS (
   INSERT INTO public.deals (
-    name, discount_type, discount_value, target_product_id, starts_at, ends_at
+    name, display_label, discount_type, discount_value,
+    target_product_id, starts_at, ends_at
   )
   VALUES (
-    'Eat me soon',
-    'fixed_price',
-    49,
+    'September nut clearance',
+    '50% off Nötter',
+    'percentage',
+    50,
     'PRODUCT_ID',
     '2026-09-03 00:00:00+02',
     '2026-09-17 00:00:00+02'
@@ -67,7 +72,7 @@ WITH new_deal AS (
   RETURNING id
 )
 INSERT INTO public.banner_messages (message, link_label, deal_id)
-SELECT 'Eat me soon: now 49 kr', 'View deal', id
+SELECT '50% off Nötter', 'View deal', id
 FROM new_deal;
 ```
 

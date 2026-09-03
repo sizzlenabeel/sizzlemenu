@@ -29,9 +29,9 @@ export type Database = {
         ]
       }
       deals: {
-        Row: { categories: string[]; created_at: string; discount_type: string; discount_value: number; due_date_rule: string | null; ends_at: string | null; id: string; name: string; priority: number; starts_at: string; target_product_id: string | null }
-        Insert: { categories?: string[]; created_at?: string; discount_type: string; discount_value: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name: string; priority?: number; starts_at?: string; target_product_id?: string | null }
-        Update: { categories?: string[]; created_at?: string; discount_type?: string; discount_value?: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name?: string; priority?: number; starts_at?: string; target_product_id?: string | null }
+        Row: { categories: string[]; created_at: string; discount_type: string; discount_value: number; display_label: string | null; due_date_rule: string | null; ends_at: string | null; id: string; name: string; priority: number; starts_at: string; target_product_id: string | null }
+        Insert: { categories?: string[]; created_at?: string; discount_type: string; discount_value: number; display_label?: string | null; due_date_rule?: string | null; ends_at?: string | null; id?: string; name: string; priority?: number; starts_at?: string; target_product_id?: string | null }
+        Update: { categories?: string[]; created_at?: string; discount_type?: string; discount_value?: number; display_label?: string | null; due_date_rule?: string | null; ends_at?: string | null; id?: string; name?: string; priority?: number; starts_at?: string; target_product_id?: string | null }
         Relationships: [
           {
             foreignKeyName: "deals_target_product_id_fkey"
@@ -338,7 +338,7 @@ export type Database = {
         Relationships: []
       }
       active_product_deals: {
-        Row: { deal_id: string | null; deal_name: string | null; discount_type: string | null; discount_value: number | null; final_price: number | null; original_price: number | null; product_id: string | null }
+        Row: { deal_id: string | null; deal_label: string | null; deal_name: string | null; discount_type: string | null; discount_value: number | null; final_price: number | null; original_price: number | null; product_id: string | null }
         Relationships: []
       }
     }
