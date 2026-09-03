@@ -15,6 +15,10 @@ function getSafeLink(value: string | null) {
   }
 }
 
+function replaceToken(value: string, token: string, replacement: string) {
+  return value.split(token).join(replacement);
+}
+
 export function MessageBanner({ banners }: { banners: BannerMessage[] }) {
   const { dynamoId } = useParams();
   if (banners.length === 0) return null;
@@ -22,12 +26,20 @@ export function MessageBanner({ banners }: { banners: BannerMessage[] }) {
   return (
     <div className="w-full border-b border-primary/20 bg-primary text-primary-foreground shadow-sm">
       {banners.map((banner) => {
-        const needsLocation = banner.link_url?.includes("{location}");
-        const resolvedUrl = needsLocation && !dynamoId
+        const linkTemplate = banner.link_url || (banner.product_id
+          ? "/{location}/product/{productId}"
+          : null);
+        const needsLocation = linkTemplate?.includes("{location}");
+        const needsProduct = linkTemplate?.includes("{product}") || linkTemplate?.includes("{productId}");
+        let resolvedUrl = (needsLocation && !dynamoId) || (needsProduct && !banner.product_id)
           ? null
-          : banner.link_url
-              ?.replaceAll("{baseurl}", window.location.origin)
-              .replaceAll("{location}", encodeURIComponent(dynamoId ?? ""));
+          : linkTemplate;
+        if (resolvedUrl) {
+          resolvedUrl = replaceToken(resolvedUrl, "{baseurl}", window.location.origin);
+          resolvedUrl = replaceToken(resolvedUrl, "{location}", encodeURIComponent(dynamoId ?? ""));
+          resolvedUrl = replaceToken(resolvedUrl, "{product}", encodeURIComponent(banner.product_id ?? ""));
+          resolvedUrl = replaceToken(resolvedUrl, "{productId}", encodeURIComponent(banner.product_id ?? ""));
+        }
         const link = getSafeLink(resolvedUrl ?? null);
         const content = (
           <>

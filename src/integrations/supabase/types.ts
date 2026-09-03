@@ -15,16 +15,32 @@ export type Database = {
   public: {
     Tables: {
       banner_messages: {
-        Row: { created_at: string; ends_at: string | null; id: string; link_label: string | null; link_url: string | null; message: string; starts_at: string }
-        Insert: { created_at?: string; ends_at?: string | null; id?: string; link_label?: string | null; link_url?: string | null; message: string; starts_at?: string }
-        Update: { created_at?: string; ends_at?: string | null; id?: string; link_label?: string | null; link_url?: string | null; message?: string; starts_at?: string }
-        Relationships: []
+        Row: { created_at: string; deal_id: string | null; ends_at: string | null; id: string; link_label: string | null; link_url: string | null; message: string; starts_at: string }
+        Insert: { created_at?: string; deal_id?: string | null; ends_at?: string | null; id?: string; link_label?: string | null; link_url?: string | null; message: string; starts_at?: string }
+        Update: { created_at?: string; deal_id?: string | null; ends_at?: string | null; id?: string; link_label?: string | null; link_url?: string | null; message?: string; starts_at?: string }
+        Relationships: [
+          {
+            foreignKeyName: "banner_messages_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deals: {
-        Row: { categories: string[]; created_at: string; discount_type: string; discount_value: number; due_date_rule: string | null; ends_at: string | null; id: string; name: string; priority: number; starts_at: string }
-        Insert: { categories: string[]; created_at?: string; discount_type: string; discount_value: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name: string; priority?: number; starts_at?: string }
-        Update: { categories?: string[]; created_at?: string; discount_type?: string; discount_value?: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name?: string; priority?: number; starts_at?: string }
-        Relationships: []
+        Row: { categories: string[]; created_at: string; discount_type: string; discount_value: number; due_date_rule: string | null; ends_at: string | null; id: string; name: string; priority: number; starts_at: string; target_product_id: string | null }
+        Insert: { categories?: string[]; created_at?: string; discount_type: string; discount_value: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name: string; priority?: number; starts_at?: string; target_product_id?: string | null }
+        Update: { categories?: string[]; created_at?: string; discount_type?: string; discount_value?: number; due_date_rule?: string | null; ends_at?: string | null; id?: string; name?: string; priority?: number; starts_at?: string; target_product_id?: string | null }
+        Relationships: [
+          {
+            foreignKeyName: "deals_target_product_id_fkey"
+            columns: ["target_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       allocations: {
         Row: {
@@ -317,6 +333,10 @@ export type Database = {
       }
     }
     Views: {
+      active_banner_messages: {
+        Row: { created_at: string | null; deal_id: string | null; ends_at: string | null; id: string | null; link_label: string | null; link_url: string | null; message: string | null; product_id: string | null; starts_at: string | null }
+        Relationships: []
+      }
       active_product_deals: {
         Row: { deal_id: string | null; deal_name: string | null; discount_type: string | null; discount_value: number | null; final_price: number | null; original_price: number | null; product_id: string | null }
         Relationships: []
