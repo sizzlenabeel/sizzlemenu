@@ -7,20 +7,44 @@ export interface BannerMessage {
   link_label: string | null;
   link_url: string | null;
   product_id: string | null;
+  location_ids?: string[] | null;
 }
 
 function isMissingActiveBannerView(error: { code?: string }) {
   return error.code === "PGRST205" || error.code === "42P01";
 }
 
-export function useBannerMessages() {
+function isMissingLocationColumn(error: { code?: string }) {
+  return error.code === "42703" || error.code === "PGRST204";
+}
+
+/**
+ * Banners with an empty location list are global; banners with locations set
+ * are only shown at those locations.
+ */
+function matchesLocation(banner: BannerMessage, locationId?: string) {
+  const locations = banner.location_ids;
+  if (!locations || locations.length === 0) return true;
+  return Boolean(locationId) && locations.includes(locationId as string);
+}
+
+export function useBannerMessages(locationId?: string) {
   return useQuery({
-    queryKey: ["banner-messages"],
+    queryKey: ["banner-messages", locationId ?? null],
     queryFn: async () => {
-      const activeResult = await supabase
+      let activeResult = await supabase
         .from("active_banner_messages")
-        .select("id, message, link_label, link_url, product_id")
+        .select("id, message, link_label, link_url, product_id, location_ids")
         .order("created_at", { ascending: false });
+
+      // Keep working if the frontend is deployed just before the migration
+      // that adds location targeting.
+      if (activeResult.error && isMissingLocationColumn(activeResult.error)) {
+        activeResult = await supabase
+          .from("active_banner_messages")
+          .select("id, message, link_label, link_url, product_id")
+          .order("created_at", { ascending: false });
+      }
 
       let banners: BannerMessage[];
       if (!activeResult.error) {
@@ -40,10 +64,11 @@ export function useBannerMessages() {
         banners = (legacyResult.data || []).map((banner) => ({
           ...banner,
           product_id: null,
+          location_ids: null,
         }));
       }
 
-      return banners;
+      return banners.filter((banner) => matchesLocation(banner, locationId));
     },
     refetchInterval: 60_000,
     refetchOnWindowFocus: true,
