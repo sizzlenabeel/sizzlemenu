@@ -16,7 +16,7 @@ export default function ProductPage() {
   const { language } = useLanguage();
   const { data: location, isLoading: locationLoading, error: locationError } = useLocation(dynamoId);
   const { data: products, isLoading: productsLoading, error: productsError } = useProducts(location?.id);
-  const { data: banners = [] } = useBannerMessages();
+  const { data: banners = [] } = useBannerMessages(location?.id);
 
   if (locationLoading || productsLoading) {
     return (
