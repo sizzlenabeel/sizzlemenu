@@ -89,7 +89,7 @@ function getCategories(types: ProductType[] | null, isSnack: boolean | null): Ca
   return [isSnack ? 'snacks' : 'food'];
 }
 
-async function fetchAllProducts(signal: AbortSignal) {
+async function fetchAllProducts(signal: AbortSignal, locationId?: string) {
   const [productsResult, dealsResult] = await Promise.all([
     supabase.from('products').select(`
       id,
@@ -118,9 +118,11 @@ async function fetchAllProducts(signal: AbortSignal) {
       storytel_delivery_days,
       image_url
     `).abortSignal(signal),
-    // Select the whole view so this frontend also works while the appended
-    // deal_label column is rolling out; older views simply omit that property.
-    supabase.from('active_product_deals').select('*').abortSignal(signal),
+    // Deals are resolved per location: deals with no locations set apply
+    // everywhere, deals with locations set only apply at those locations.
+    supabase
+      .rpc('active_product_deals_for_location', { p_location_id: locationId ?? null })
+      .abortSignal(signal),
   ]);
 
   if (productsResult.error) throw productsResult.error;
@@ -146,7 +148,7 @@ export function useProducts(locationId?: string) {
       const { signal, cleanup } = createQuerySignal(parentSignal);
 
       try {
-        const { products, deals } = await fetchAllProducts(signal);
+        const { products, deals } = await fetchAllProducts(signal, locationId);
         const dealsByProduct = new Map(deals.map((deal) => [deal.product_id, deal]));
 
         const dishes: (Dish & { isForStorytel: boolean; isOnlyForStorytel: boolean })[] = products.map((row) => {
