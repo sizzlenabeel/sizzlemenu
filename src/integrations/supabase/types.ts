@@ -83,6 +83,7 @@ export type Database = {
           id: string
           link_label: string | null
           link_url: string | null
+          location_ids: string[]
           message: string
           starts_at: string
         }
@@ -93,6 +94,7 @@ export type Database = {
           id?: string
           link_label?: string | null
           link_url?: string | null
+          location_ids?: string[]
           message: string
           starts_at?: string
         }
@@ -103,6 +105,7 @@ export type Database = {
           id?: string
           link_label?: string | null
           link_url?: string | null
+          location_ids?: string[]
           message?: string
           starts_at?: string
         }
@@ -133,6 +136,7 @@ export type Database = {
           due_date_rule: string | null
           ends_at: string | null
           id: string
+          location_ids: string[]
           name: string
           priority: number
           starts_at: string
@@ -147,6 +151,7 @@ export type Database = {
           due_date_rule?: string | null
           ends_at?: string | null
           id?: string
+          location_ids?: string[]
           name: string
           priority?: number
           starts_at?: string
@@ -161,6 +166,7 @@ export type Database = {
           due_date_rule?: string | null
           ends_at?: string | null
           id?: string
+          location_ids?: string[]
           name?: string
           priority?: number
           starts_at?: string
@@ -693,6 +699,7 @@ export type Database = {
           id: string | null
           link_label: string | null
           link_url: string | null
+          location_ids: string[] | null
           message: string | null
           product_id: string | null
           starts_at: string | null
@@ -743,6 +750,19 @@ export type Database = {
       }
     }
     Functions: {
+      active_product_deals_for_location: {
+        Args: { p_location_id: string }
+        Returns: {
+          deal_id: string
+          deal_label: string
+          deal_name: string
+          discount_type: string
+          discount_value: number
+          final_price: number
+          original_price: number
+          product_id: string
+        }[]
+      }
       upsert_orders: { Args: { p_orders: Json }; Returns: Json }
     }
     Enums: {
