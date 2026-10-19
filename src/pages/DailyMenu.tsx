@@ -14,6 +14,9 @@ import { useBannerMessages } from "@/hooks/useBannerMessages";
 import { MessageBanner } from "@/components/menu/MessageBanner";
 import { useNavigate, useParams } from "react-router-dom";
 
+const STORYTEL_FOOD_BUY_URL =
+  "https://microdeb.me/RiddarholmenLunchrestaurang/article-list-mobile/c39213f1-878b-4de9-8423-0f524a4466bf?devLoc=18a8b6b5-792a-4767-bce2-574afb3d3543";
+
 interface DailyMenuProps {
   locationId: string;
   locationName: string;
@@ -139,6 +142,7 @@ export default function DailyMenu({
                 showBuyButton={dish.category !== "food"}
                 locationName={locationName}
                 viewMode={viewMode}
+                externalBuyUrl={dish.category === "food" ? STORYTEL_FOOD_BUY_URL : undefined}
               />
             ))
           ) : (
