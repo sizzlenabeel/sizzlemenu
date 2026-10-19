@@ -18,9 +18,10 @@ interface DishCardProps {
   locationName?: string;
   viewMode?: ViewMode;
   upcoming?: boolean;
+  externalBuyUrl?: string;
 }
 
-export function DishCard({ dish, showPrice = true, showBuyButton = false, locationName, viewMode = 'list', upcoming = false }: DishCardProps) {
+export function DishCard({ dish, showPrice = true, showBuyButton = false, locationName, viewMode = 'list', upcoming = false, externalBuyUrl }: DishCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { language } = useLanguage();
@@ -34,7 +35,9 @@ export function DishCard({ dish, showPrice = true, showBuyButton = false, locati
   const shouldShowDueDate = dish.category === 'food' || dish.showDueDate === true;
   const swishProductId = dish.numericId ?? dish.name.slice(0, 10);
 
-  const swishUrl = showBuyButton && locationName && !upcoming
+  const swishUrl = externalBuyUrl
+    ? (upcoming ? null : externalBuyUrl)
+    : showBuyButton && locationName && !upcoming
     ? (() => {
         const msg = `${locationName}: ${swishProductId}`.substring(0, 50);
         return `https://app.swish.nu/1/p/sw/?sw=1234355145&amt=${dish.price}&cur=SEK&msg=${msg}&edit=msg&src=qr`;
