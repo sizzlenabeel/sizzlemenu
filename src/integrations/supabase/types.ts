@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -122,6 +122,334 @@ export type Database = {
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catering_chefs: {
+        Row: {
+          addons: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          addons?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          addons?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      catering_companies: {
+        Row: {
+          created_at: string
+          id: string
+          join_code: string
+          name: string
+          organization_number: string
+          owner_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          join_code?: string
+          name: string
+          organization_number: string
+          owner_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          join_code?: string
+          name?: string
+          organization_number?: string
+          owner_user_id?: string
+        }
+        Relationships: []
+      }
+      catering_locations: {
+        Row: {
+          address: string
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          address: string
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          address?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catering_locations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "catering_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catering_menu_items: {
+        Row: {
+          category: string
+          chef_id: string | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string
+          is_active: boolean
+          is_vegan: boolean
+          is_vegetarian: boolean
+          minimum_quantity: number
+          name: string
+          options: Json
+          price_ore: number
+          serving_styles: string[]
+          sort_order: number
+        }
+        Insert: {
+          category: string
+          chef_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          is_vegan?: boolean
+          is_vegetarian?: boolean
+          minimum_quantity?: number
+          name: string
+          options?: Json
+          price_ore: number
+          serving_styles?: string[]
+          sort_order?: number
+        }
+        Update: {
+          category?: string
+          chef_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          is_vegan?: boolean
+          is_vegetarian?: boolean
+          minimum_quantity?: number
+          name?: string
+          options?: Json
+          price_ore?: number
+          serving_styles?: string[]
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catering_menu_items_chef_id_fkey"
+            columns: ["chef_id"]
+            isOneToOne: false
+            referencedRelation: "catering_chefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catering_order_items: {
+        Row: {
+          chef_id: string | null
+          chef_name: string | null
+          configuration_key: string
+          id: string
+          menu_item_id: string
+          name: string
+          order_id: string
+          quantity: number
+          selected_options: Json
+          serving_style: string
+          unit_price_ore: number
+        }
+        Insert: {
+          chef_id?: string | null
+          chef_name?: string | null
+          configuration_key: string
+          id?: string
+          menu_item_id: string
+          name: string
+          order_id: string
+          quantity: number
+          selected_options?: Json
+          serving_style: string
+          unit_price_ore: number
+        }
+        Update: {
+          chef_id?: string | null
+          chef_name?: string | null
+          configuration_key?: string
+          id?: string
+          menu_item_id?: string
+          name?: string
+          order_id?: string
+          quantity?: number
+          selected_options?: Json
+          serving_style?: string
+          unit_price_ore?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catering_order_items_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "catering_menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catering_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "catering_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catering_orders: {
+        Row: {
+          company_id: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          created_at: string
+          currency: string
+          delivery_address: string
+          delivery_date: string
+          delivery_time: string
+          id: string
+          is_guest: boolean
+          location_id: string | null
+          notes: string
+          phone: string
+          request_key: string
+          status: string
+          total_ore: number
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          created_at?: string
+          currency?: string
+          delivery_address: string
+          delivery_date: string
+          delivery_time: string
+          id?: string
+          is_guest?: boolean
+          location_id?: string | null
+          notes?: string
+          phone: string
+          request_key: string
+          status?: string
+          total_ore: number
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          company_name?: string
+          contact_email?: string
+          contact_name?: string
+          created_at?: string
+          currency?: string
+          delivery_address?: string
+          delivery_date?: string
+          delivery_time?: string
+          id?: string
+          is_guest?: boolean
+          location_id?: string | null
+          notes?: string
+          phone?: string
+          request_key?: string
+          status?: string
+          total_ore?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catering_order_location_company_fk"
+            columns: ["company_id", "location_id"]
+            isOneToOne: false
+            referencedRelation: "catering_locations"
+            referencedColumns: ["company_id", "id"]
+          },
+          {
+            foreignKeyName: "catering_orders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "catering_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catering_profiles: {
+        Row: {
+          company_id: string | null
+          company_name: string
+          created_at: string
+          delivery_address: string
+          full_name: string
+          location_id: string | null
+          phone: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          company_name?: string
+          created_at?: string
+          delivery_address?: string
+          full_name?: string
+          location_id?: string | null
+          phone?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          company_name?: string
+          created_at?: string
+          delivery_address?: string
+          full_name?: string
+          location_id?: string | null
+          phone?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catering_profile_location_company_fk"
+            columns: ["company_id", "location_id"]
+            isOneToOne: false
+            referencedRelation: "catering_locations"
+            referencedColumns: ["company_id", "id"]
+          },
+          {
+            foreignKeyName: "catering_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "catering_companies"
             referencedColumns: ["id"]
           },
         ]
@@ -762,6 +1090,37 @@ export type Database = {
           original_price: number
           product_id: string
         }[]
+      }
+      catering_add_location: {
+        Args: { p_address: string; p_name: string }
+        Returns: Json
+      }
+      catering_company_context: { Args: never; Returns: Json }
+      catering_complete_company_setup: {
+        Args: { p_details: Json; p_mode: string }
+        Returns: Json
+      }
+      catering_is_staff: { Args: never; Returns: boolean }
+      catering_place_order: {
+        Args: { p_details: Json; p_items: Json; p_request_key: string }
+        Returns: string
+      }
+      catering_quote_menu: {
+        Args: { p_menu_id: string; p_option_ids: Json; p_serving_style: string }
+        Returns: Json
+      }
+      catering_rotate_company_code: { Args: never; Returns: Json }
+      catering_select_location: {
+        Args: { p_location_id: string }
+        Returns: Json
+      }
+      catering_valid_dietary_options: {
+        Args: { p_options: Json }
+        Returns: boolean
+      }
+      catering_valid_options: {
+        Args: { p_base_price: number; p_options: Json }
+        Returns: boolean
       }
       upsert_orders: { Args: { p_orders: Json }; Returns: Json }
     }
